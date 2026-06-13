@@ -2138,6 +2138,21 @@ footer {
     font-size: 3.2rem;
   }
 
+  .hero-circle-bg {
+    width: 400px;
+    height: 400px;
+  }
+
+  .hero-image-ring {
+    width: 360px;
+    height: 360px;
+  }
+
+  .hero-image-wrapper {
+    width: 320px;
+    height: 320px;
+  }
+
   .about-grid {
     grid-template-columns: 1fr;
     gap: 50px;
@@ -2289,16 +2304,54 @@ footer {
   }
 
   .hero-circle-bg {
-    width: 320px;
-    height: 320px;
+    width: 280px;
+    height: 280px;
   }
 
-  .hero-main-img {
-    max-width: 280px;
+  .hero-image-ring {
+    width: 260px;
+    height: 260px;
+  }
+
+  .hero-image-ring::after {
+    top: 20px;
+    left: 20px;
+    width: 8px;
+    height: 8px;
+  }
+
+  .hero-image-wrapper {
+    width: 220px;
+    height: 220px;
+    border-width: 5px;
   }
 
   .float-elem {
-    display: none; /* Hide floating strawberries/macarons on small mobile devices to avoid overlap */
+    display: none; /* Hide floating elements on mobile */
+  }
+
+  /* Reset ScrollStack transitions on mobile for native vertical scroll list */
+  .scroll-stack-scroller {
+    height: auto !important;
+    overflow: visible !important;
+  }
+  .scroll-stack-inner {
+    padding: 0 10px !important;
+    min-height: auto !important;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .scroll-stack-card {
+    height: 250px !important;
+    margin: 0 !important;
+    transform: none !important;
+    filter: none !important;
+    position: relative !important;
+    box-shadow: var(--shadow-md);
+  }
+  .scroll-stack-indicator {
+    display: none !important;
   }
 
   .section-title {

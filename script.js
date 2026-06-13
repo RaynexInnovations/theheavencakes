@@ -839,6 +839,7 @@ function initScrollStack() {
   };
 
   const updateCardTransforms = () => {
+    if (window.innerWidth <= 768) return; // Bypass transitions on mobile screens
     const { scrollTop, containerHeight } = getScrollData();
     const stackPositionPx = parsePercentage(stackPosition, containerHeight);
     const scaleEndPositionPx = parsePercentage(scaleEndPosition, containerHeight);
@@ -911,6 +912,7 @@ function initScrollStack() {
 
 // 16. HERO IMAGE SCROLL TRIGGER AUTOMATION
 function initHeroScrollAnimation() {
+  if (window.innerWidth <= 768) return; // Bypass scroll animation on mobile screens
   if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     gsap.registerPlugin(ScrollTrigger);
 
