@@ -545,25 +545,11 @@ function filterByCategory(categoryName) {
     targetPill.click();
     document.getElementById('featured').scrollIntoView({ behavior: 'smooth' });
   } else {
-    // If not found in simple pills list
+    // If not found in simple pills list, default to first available pill
     const firstPill = document.querySelector('.filter-pill');
-    if (firstPill) filterCategory(firstPill, 'all');
-    
-    const productCards = document.querySelectorAll('.product-card');
-    let visibleCount = 0;
-    productCards.forEach(card => {
-      const categoriesStr = card.getAttribute('data-category');
-      const categoriesArray = categoriesStr.split(',').map(s => s.trim());
-      if (categoriesArray.includes(categoryName)) {
-        card.style.display = 'flex';
-        visibleCount++;
-        setTimeout(() => card.classList.add('revealed'), 50);
-      } else {
-        card.style.display = 'none';
-      }
-    });
-    manageNoResults(visibleCount);
-    document.getElementById('featured').scrollIntoView({ behavior: 'smooth' });
+    if (firstPill) {
+      firstPill.click();
+    }
   }
 }
 
@@ -2027,6 +2013,15 @@ function renderCatalog() {
         `;
         productsGrid.appendChild(card);
       });
+
+      // Filter products by the currently active filter pill
+      const activePill = document.querySelector('.filter-pill.active');
+      if (activePill) {
+        const onclickAttr = activePill.getAttribute('onclick');
+        const match = onclickAttr ? onclickAttr.match(/'([^']+)'/) : null;
+        const categoryName = match ? match[1] : 'Classic Cakes';
+        filterCategory(activePill, categoryName);
+      }
 
       // Reinitialize scroll reveal triggers for active nodes
       if (typeof initScrollReveal === 'function') {
