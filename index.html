@@ -297,6 +297,10 @@
           <button class="filter-pill" onclick="filterCategory(this, 'Desserts')">Desserts</button>
           <button class="filter-pill" onclick="filterCategory(this, 'Custom Cakes')">Custom Cakes</button>
         </div>
+        <div class="category-pricing-banner" id="category-pricing-banner" style="display: none;">
+          <i data-lucide="info" style="width: 14px; height: 14px; margin-right: 6px; display: inline-block; vertical-align: middle; color: var(--gold);"></i>
+          <span id="category-pricing-text"></span>
+        </div>
       </div>
 
       <!-- Responsive Product Grid -->
@@ -314,6 +318,7 @@
               <div class="product-price">
                 <span class="price-label">Starts from</span>
                 <span class="price-value">₹1000</span>
+                <span class="price-options-detail" style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 4px; font-weight: normal;">(Half Kg: ₹500 | 1Kg: ₹1000 | Pastry: ₹100)</span>
               </div>
               <button class="btn btn-primary product-btn-order" onclick="openOrderModal('Choco Truffle', '₹1000', 'images/hero_chocolate.jpg')">Order Now</button>
             </div>
@@ -333,6 +338,7 @@
               <div class="product-price">
                 <span class="price-label">Starts from</span>
                 <span class="price-value">₹1100</span>
+                <span class="price-options-detail" style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 4px; font-weight: normal;">(Half Kg: ₹550 | 1Kg: ₹1100 | Pastry: ₹100)</span>
               </div>
               <button class="btn btn-primary product-btn-order" onclick="openOrderModal('Red Velvet', '₹1100', 'images/prod_red_velvet.jpg')">Order Now</button>
             </div>
@@ -352,6 +358,7 @@
               <div class="product-price">
                 <span class="price-label">Starts from</span>
                 <span class="price-value">₹1100</span>
+                <span class="price-options-detail" style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 4px; font-weight: normal;">(Half Kg: ₹550 | 1Kg: ₹1100 | Pastry: ₹110)</span>
               </div>
               <button class="btn btn-primary product-btn-order" onclick="openOrderModal('Lotus Biscoff Cheesecake', '₹1100', 'images/cat_photo.jpg')">Order Now</button>
             </div>
@@ -370,6 +377,7 @@
               <div class="product-price">
                 <span class="price-label">Starts from</span>
                 <span class="price-value">₹750</span>
+                <span class="price-options-detail" style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 4px; font-weight: normal;">(Half Kg: ₹400 | 1Kg: ₹750 | Pastry: ₹60)</span>
               </div>
               <button class="btn btn-primary product-btn-order" onclick="openOrderModal('Butterscotch', '₹750', 'images/about_display.jpg')">Order Now</button>
             </div>
@@ -388,6 +396,7 @@
               <div class="product-price">
                 <span class="price-label">Starts from</span>
                 <span class="price-value">₹650</span>
+                <span class="price-options-detail" style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 4px; font-weight: normal;">(Half Kg: ₹350 | 1Kg: ₹650 | Pastry: ₹60)</span>
               </div>
               <button class="btn btn-primary product-btn-order" onclick="openOrderModal('Black Forest', '₹650', 'images/about_crafting.jpg')">Order Now</button>
             </div>
@@ -406,6 +415,7 @@
               <div class="product-price">
                 <span class="price-label">Starts from</span>
                 <span class="price-value">₹850</span>
+                <span class="price-options-detail" style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 4px; font-weight: normal;">(Half Kg: ₹450 | 1Kg: ₹850 | Pastry: ₹80)</span>
               </div>
               <button class="btn btn-primary product-btn-order" onclick="openOrderModal('Vancho', '₹850', 'images/cat_kids.jpg')">Order Now</button>
             </div>
@@ -425,6 +435,7 @@
               <div class="product-price">
                 <span class="price-label">Starts from</span>
                 <span class="price-value">₹1100</span>
+                <span class="price-options-detail" style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 4px; font-weight: normal;">(Half Kg: ₹550 | 1Kg: ₹1100 | Pastry: ₹100)</span>
               </div>
               <button class="btn btn-primary product-btn-order" onclick="openOrderModal('Nuttela Hazel Nut', '₹1100', 'images/cat_birthday.jpg')">Order Now</button>
             </div>
@@ -443,6 +454,7 @@
               <div class="product-price">
                 <span class="price-label">Starts from</span>
                 <span class="price-value">₹750</span>
+                <span class="price-options-detail" style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 4px; font-weight: normal;">(Half Kg: ₹400 | 1Kg: ₹750 | Pastry: ₹60)</span>
               </div>
               <button class="btn btn-primary product-btn-order" onclick="openOrderModal('Blue Berry', '₹750', 'images/prod_strawberry.jpg')">Order Now</button>
             </div>
@@ -461,6 +473,7 @@
               <div class="product-price">
                 <span class="price-label">Starts from</span>
                 <span class="price-value">₹25</span>
+                <span class="price-options-detail" style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 4px; font-weight: normal;">(Regular: ₹25 | Large: ₹50 | Customized: ₹100)</span>
               </div>
               <button class="btn btn-primary product-btn-order" onclick="openOrderModal('Red Velvet Cup Cake', '₹25', 'images/cat_cupcakes.jpg')">Order Now</button>
             </div>
@@ -479,6 +492,7 @@
               <div class="product-price">
                 <span class="price-label">Starts from</span>
                 <span class="price-value">₹1100</span>
+                <span class="price-options-detail" style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 4px; font-weight: normal;">(Half Kg: ₹550 | 1Kg: ₹1100 | Pastry: ₹100)</span>
               </div>
               <button class="btn btn-primary product-btn-order" onclick="openOrderModal('Ferror Rocher', '₹1100', 'images/cat_cookies.jpg')">Order Now</button>
             </div>
@@ -498,6 +512,7 @@
               <div class="product-price">
                 <span class="price-label">Starts from</span>
                 <span class="price-value">₹55</span>
+                <span class="price-options-detail" style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 4px; font-weight: normal;">(Walnut Brownie: ₹55)</span>
               </div>
               <button class="btn btn-primary product-btn-order" onclick="openOrderModal('Walnut Brownie', '₹55', 'images/cat_brownies.jpg')">Order Now</button>
             </div>
@@ -517,6 +532,7 @@
               <div class="product-price">
                 <span class="price-label">Starts from</span>
                 <span class="price-value">₹1050</span>
+                <span class="price-options-detail" style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 4px; font-weight: normal;">(Photo Cake 1Kg: ₹1050 | Half Kg: ₹650)</span>
               </div>
               <button class="btn btn-primary product-btn-order" onclick="openOrderModal('Photo Cake', '₹1050', 'images/cat_photo.jpg')">Order Now</button>
             </div>

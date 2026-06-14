@@ -339,6 +339,33 @@ function initMouseParallax() {
 }
 
 // 9. SEARCH & FILTER DYNAMIC CAKES MENU
+function getCategoryPricingInfo(category) {
+  switch (category) {
+    case 'Classic Cakes':
+      return 'Half Kg: ₹350 | 1Kg: ₹650 | Pastry: ₹60';
+    case 'Premium Cakes':
+      return 'Half Kg: ₹400 | 1Kg: ₹750 | Pastry: ₹60';
+    case 'Exotic Cakes':
+      return 'Half Kg: ₹450 | 1Kg: ₹850 | Pastry: ₹80';
+    case 'Premium Choco Cakes':
+      return 'Half Kg: ₹500 | 1Kg: ₹1000 | Pastry: ₹100';
+    case 'Premium Exotic':
+      return 'Half Kg: ₹550 | 1Kg: ₹1100 | Pastry: ₹100';
+    case 'Cheese Cakes':
+      return 'Half Kg: ₹550 | 1Kg: ₹1100 | Pastry: ₹110';
+    case 'Cupcakes':
+      return 'Regular: ₹25 | Large: ₹50 | Customized: ₹100';
+    case 'Custom Cakes':
+      return 'Photo Cake 1Kg: ₹1050 (Half Kg: ₹650) | Shape Cake 1Kg: ₹1099 | 3D: ₹1500';
+    case 'Desserts':
+      return 'Muffins: ₹45 | Donuts: ₹50 | Brownies: ₹55 | Glass: ₹65 | Lava: ₹60 | Bar Cake: ₹100 | Tarts: ₹35';
+    default:
+      return '';
+  }
+}
+
+window.getCategoryPricingInfo = getCategoryPricingInfo;
+
 function filterCategory(element, categoryName) {
   // Update Active Pill state
   const pills = document.querySelectorAll('.filter-pill');
@@ -348,6 +375,19 @@ function filterCategory(element, categoryName) {
   const productsGrid = document.getElementById('products-grid');
   const productCards = document.querySelectorAll('.product-card');
   const searchInput = document.getElementById('cake-search');
+
+  // Update Category Pricing Banner
+  const pricingBanner = document.getElementById('category-pricing-banner');
+  const pricingText = document.getElementById('category-pricing-text');
+  if (pricingBanner && pricingText) {
+    const infoText = getCategoryPricingInfo(categoryName);
+    if (infoText) {
+      pricingText.textContent = `${categoryName} Rates - ${infoText}`;
+      pricingBanner.style.display = 'flex';
+    } else {
+      pricingBanner.style.display = 'none';
+    }
+  }
 
   // Clear search field during category shifts
   if (searchInput) searchInput.value = '';
@@ -1518,6 +1558,8 @@ function renderCatalog() {
         card.setAttribute('data-category', item.category || 'Premium Exotic');
         card.setAttribute('data-name', item.name || 'Signature Cake');
 
+        const pricingInfo = getCategoryPricingInfo(item.category || 'Classic Cakes');
+
         card.innerHTML = `
           <div class="product-img-wrapper">
             <img src="${item.img || 'images/hero_chocolate.jpg'}" alt="${item.name || 'Cake'} image">
@@ -1530,6 +1572,7 @@ function renderCatalog() {
               <div class="product-price">
                 <span class="price-label">Starts from</span>
                 <span class="price-value">₹${item.price || '999'}</span>
+                ${pricingInfo ? `<span class="price-options-detail" style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 4px; font-weight: normal;">(${pricingInfo})</span>` : ''}
               </div>
               <button type="button" class="btn btn-primary product-btn-order" onclick="openOrderModal('${(item.name || 'Signature Cake').replace(/'/g, "\\'")}', '₹${item.price || '999'}', '${item.img || 'images/hero_chocolate.jpg'}')">Order Now</button>
             </div>
