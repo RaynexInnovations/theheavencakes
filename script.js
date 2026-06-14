@@ -29,7 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
     { name: 'ScrollStack', fn: initScrollStack },
     { name: 'HeroScrollAnimation', fn: initHeroScrollAnimation },
     { name: 'CakeCustomizer', fn: initCakeCustomizer },
-    { name: 'ActivityToasts', fn: initActivityToasts }
+    { name: 'ActivityToasts', fn: initActivityToasts },
+    { name: 'ModalPricingWeight', fn: initModalPricingWeightListener }
   ];
 
   initializers.forEach(item => {
@@ -366,6 +367,116 @@ function getCategoryPricingInfo(category) {
 
 window.getCategoryPricingInfo = getCategoryPricingInfo;
 
+function getProductSizesAndPrices(item) {
+  const name = item.name ? item.name.toLowerCase() : '';
+  const category = item.category || 'Classic Cakes';
+
+  // Cupcakes
+  if (category === 'Cupcakes') {
+    return [
+      { label: 'Regular', price: '25', value: 'Regular' },
+      { label: 'Large', price: '50', value: 'Large' },
+      { label: 'Customized', price: '100', value: 'Customized' }
+    ];
+  }
+
+  // Desserts: Tarts only
+  if (category === 'Desserts') {
+    if (name.includes('tart')) {
+      return [
+        { label: 'All Fav', price: '35', value: 'All Fav' },
+        { label: 'Large', price: '60', value: 'Large' }
+      ];
+    }
+    return null;
+  }
+
+  // Custom Cakes
+  if (category === 'Custom Cakes') {
+    if (name.includes('photo')) {
+      return [
+        { label: 'Half Kg', price: '650', value: 'Half Kg' },
+        { label: '1 Kg', price: '1050', value: '1 Kg' }
+      ];
+    }
+    return null;
+  }
+
+  // Standard Cakes
+  switch (category) {
+    case 'Classic Cakes':
+      return [
+        { label: 'Half Kg', price: '350', value: 'Half Kg' },
+        { label: '1 Kg', price: '650', value: '1 Kg' },
+        { label: 'Pastry', price: '60', value: 'Pastry' }
+      ];
+    case 'Premium Cakes':
+      return [
+        { label: 'Half Kg', price: '400', value: 'Half Kg' },
+        { label: '1 Kg', price: '750', value: '1 Kg' },
+        { label: 'Pastry', price: '60', value: 'Pastry' }
+      ];
+    case 'Exotic Cakes':
+      return [
+        { label: 'Half Kg', price: '450', value: 'Half Kg' },
+        { label: '1 Kg', price: '850', value: '1 Kg' },
+        { label: 'Pastry', price: '80', value: 'Pastry' }
+      ];
+    case 'Premium Choco Cakes':
+      return [
+        { label: 'Half Kg', price: '500', value: 'Half Kg' },
+        { label: '1 Kg', price: '1000', value: '1 Kg' },
+        { label: 'Pastry', price: '100', value: 'Pastry' }
+      ];
+    case 'Premium Exotic':
+      return [
+        { label: 'Half Kg', price: '550', value: 'Half Kg' },
+        { label: '1 Kg', price: '1100', value: '1 Kg' },
+        { label: 'Pastry', price: '100', value: 'Pastry' }
+      ];
+    case 'Cheese Cakes':
+      return [
+        { label: 'Half Kg', price: '550', value: 'Half Kg' },
+        { label: '1 Kg', price: '1100', value: '1 Kg' },
+        { label: 'Pastry', price: '110', value: 'Pastry' }
+      ];
+    default:
+      return null;
+  }
+}
+window.getProductSizesAndPrices = getProductSizesAndPrices;
+
+function changeCardSize(pillElement, cardIndex, sizeLabel, price, sizeValue, cakeName, cakeImg, category) {
+  // Update active pill state
+  const container = pillElement.closest('.card-size-selector');
+  if (container) {
+    const pills = container.querySelectorAll('.size-pill');
+    pills.forEach(p => p.classList.remove('active'));
+    pillElement.classList.add('active');
+  }
+
+  // Update card displayed price and label
+  const card = pillElement.closest('.product-card');
+  if (card) {
+    const priceValueEl = card.querySelector('.price-value');
+    if (priceValueEl) {
+      priceValueEl.textContent = `₹${price}`;
+    }
+    const priceLabelEl = card.querySelector('.price-label');
+    if (priceLabelEl) {
+      priceLabelEl.textContent = 'Price';
+    }
+
+    // Update the Order Now button click handler
+    const orderBtn = card.querySelector('.product-btn-order');
+    if (orderBtn) {
+      const escapedName = cakeName.replace(/'/g, "\\'");
+      orderBtn.setAttribute('onclick', `openOrderModal('${escapedName}', '₹${price}', '${cakeImg}', '${sizeValue}', '${category}')`);
+    }
+  }
+}
+window.changeCardSize = changeCardSize;
+
 function filterCategory(element, categoryName) {
   // Update Active Pill state
   const pills = document.querySelectorAll('.filter-pill');
@@ -516,7 +627,7 @@ function manageNoResults(count) {
 }
 
 // 10. QUICK ORDER MODAL INTERACTION
-function openOrderModal(cakeName, cakePrice, cakeImg) {
+function openOrderModal(cakeName, cakePrice, cakeImg, selectedWeight = '1 kg', category = 'Classic Cakes') {
   const modal = document.getElementById('order-modal');
   const nameEl = document.getElementById('modal-cake-name');
   const priceEl = document.getElementById('modal-cake-price');
@@ -529,9 +640,181 @@ function openOrderModal(cakeName, cakePrice, cakeImg) {
   imgEl.src = cakeImg;
   imgEl.alt = cakeName;
 
+  // Store active category for price updates inside the modal
+  modal.setAttribute('data-category', category);
+
+  // Rebuild modal weight dropdown options and pre-select current weight
+  updateModalWeightOptions(category, selectedWeight, cakeName);
+
   modal.classList.add('active');
   document.body.style.overflow = 'hidden'; // Stop background scrolling
 }
+
+function updateModalWeightOptions(category, selectedWeight, cakeName) {
+  const weightSelect = document.getElementById('modal-weight');
+  if (!weightSelect) return;
+
+  weightSelect.innerHTML = ''; // Clear previous options
+  const nameLower = cakeName ? cakeName.toLowerCase() : '';
+
+  if (category === 'Cupcakes') {
+    const options = [
+      { value: 'Regular', text: 'Regular (₹25)' },
+      { value: 'Large', text: 'Large (₹50)' },
+      { value: 'Customized', text: 'Customized (₹100)' }
+    ];
+    options.forEach(opt => {
+      const el = document.createElement('option');
+      el.value = opt.value;
+      el.textContent = opt.text;
+      weightSelect.appendChild(el);
+    });
+  } else if (category === 'Desserts') {
+    if (nameLower.includes('tart')) {
+      const options = [
+        { value: 'All Fav', text: 'All Fav (₹35)' },
+        { value: 'Large', text: 'Large (₹60)' }
+      ];
+      options.forEach(opt => {
+        const el = document.createElement('option');
+        el.value = opt.value;
+        el.textContent = opt.text;
+        weightSelect.appendChild(el);
+      });
+    } else {
+      const el = document.createElement('option');
+      el.value = 'Standard';
+      el.textContent = 'Standard';
+      weightSelect.appendChild(el);
+    }
+  } else if (category === 'Custom Cakes') {
+    if (nameLower.includes('photo')) {
+      const options = [
+        { value: 'Half Kg', text: 'Half Kg (₹650)' },
+        { value: '1 kg', text: '1 kg (₹1050)' }
+      ];
+      options.forEach(opt => {
+        const el = document.createElement('option');
+        el.value = opt.value;
+        el.textContent = opt.text;
+        weightSelect.appendChild(el);
+      });
+    } else if (nameLower.includes('shape')) {
+      const el = document.createElement('option');
+      el.value = '1 kg';
+      el.textContent = '1 kg (₹1099)';
+      weightSelect.appendChild(el);
+    } else {
+      const el = document.createElement('option');
+      el.value = '1 kg';
+      el.textContent = '1 kg (₹1500)';
+      weightSelect.appendChild(el);
+    }
+  } else {
+    // Standard Cakes: Classic, Premium, Exotic, Premium Choco, Premium Exotic, Cheese Cakes
+    let halfPrice = '', onePrice = '', pastryPrice = '';
+    if (category === 'Classic Cakes') { halfPrice = '350'; onePrice = '650'; pastryPrice = '60'; }
+    else if (category === 'Premium Cakes') { halfPrice = '400'; onePrice = '750'; pastryPrice = '60'; }
+    else if (category === 'Exotic Cakes') { halfPrice = '450'; onePrice = '850'; pastryPrice = '80'; }
+    else if (category === 'Premium Choco Cakes') { halfPrice = '500'; onePrice = '1000'; pastryPrice = '100'; }
+    else if (category === 'Premium Exotic') { halfPrice = '550'; onePrice = '1100'; pastryPrice = '100'; }
+    else if (category === 'Cheese Cakes') { halfPrice = '550'; onePrice = '1100'; pastryPrice = '110'; }
+
+    const options = [];
+    if (halfPrice) options.push({ value: 'Half Kg', text: `Half Kg (₹${halfPrice})` });
+    if (onePrice) options.push({ value: '1 kg', text: `1 kg (₹${onePrice})` });
+    
+    // Add standard ordering custom weights
+    options.push({ value: '1.5 kg', text: '1.5 kg' });
+    options.push({ value: '2 kg', text: '2 kg' });
+    options.push({ value: '3 kg', text: '3 kg' });
+    
+    if (pastryPrice) options.push({ value: 'Pastry', text: `Pastry (₹${pastryPrice})` });
+
+    options.forEach(opt => {
+      const el = document.createElement('option');
+      el.value = opt.value;
+      el.textContent = opt.text;
+      weightSelect.appendChild(el);
+    });
+  }
+
+  // Pre-select the target weight/size
+  if (selectedWeight) {
+    let selectVal = selectedWeight;
+    if (selectedWeight.toLowerCase() === '1 kg') {
+      selectVal = '1 kg';
+    }
+    weightSelect.value = selectVal;
+  }
+}
+
+function initModalPricingWeightListener() {
+  const weightSelect = document.getElementById('modal-weight');
+  if (!weightSelect) return;
+
+  weightSelect.addEventListener('change', (e) => {
+    const modal = document.getElementById('order-modal');
+    if (!modal) return;
+    const category = modal.getAttribute('data-category') || 'Classic Cakes';
+    const selectedValue = e.target.value;
+    const priceEl = document.getElementById('modal-cake-price');
+    const cakeName = document.getElementById('modal-cake-name').textContent;
+    if (!priceEl) return;
+
+    let price = '';
+    const nameLower = cakeName ? cakeName.toLowerCase() : '';
+
+    if (category === 'Cupcakes') {
+      if (selectedValue === 'Regular') price = '25';
+      else if (selectedValue === 'Large') price = '50';
+      else if (selectedValue === 'Customized') price = '100';
+    } else if (category === 'Desserts') {
+      if (selectedValue === 'All Fav') price = '35';
+      else if (selectedValue === 'Large') price = '60';
+    } else if (category === 'Custom Cakes') {
+      if (nameLower.includes('photo')) {
+        if (selectedValue === 'Half Kg') price = '650';
+        else if (selectedValue === '1 kg') price = '1050';
+      } else if (nameLower.includes('shape')) {
+        price = '1099';
+      } else {
+        price = '1500';
+      }
+    } else {
+      // Standard Cakes
+      if (selectedValue === 'Half Kg') {
+        if (category === 'Classic Cakes') price = '350';
+        else if (category === 'Premium Cakes') price = '400';
+        else if (category === 'Exotic Cakes') price = '450';
+        else if (category === 'Premium Choco Cakes') price = '500';
+        else if (category === 'Premium Exotic') price = '550';
+        else if (category === 'Cheese Cakes') price = '550';
+      } else if (selectedValue === '1 kg') {
+        if (category === 'Classic Cakes') price = '650';
+        else if (category === 'Premium Cakes') price = '750';
+        else if (category === 'Exotic Cakes') price = '850';
+        else if (category === 'Premium Choco Cakes') price = '1000';
+        else if (category === 'Premium Exotic') price = '1100';
+        else if (category === 'Cheese Cakes') price = '1100';
+      } else if (selectedValue === 'Pastry') {
+        if (category === 'Classic Cakes') price = '60';
+        else if (category === 'Premium Cakes') price = '60';
+        else if (category === 'Exotic Cakes') price = '80';
+        else if (category === 'Premium Choco Cakes') price = '100';
+        else if (category === 'Premium Exotic') price = '100';
+        else if (category === 'Cheese Cakes') price = '110';
+      }
+    }
+
+    if (price) {
+      priceEl.textContent = `₹${price}`;
+    } else if (selectedValue.includes('kg')) {
+      priceEl.textContent = 'Price on Inquiry';
+    }
+  });
+}
+
 
 function closeOrderModal() {
   const modal = document.getElementById('order-modal');
@@ -1559,6 +1842,39 @@ function renderCatalog() {
         card.setAttribute('data-name', item.name || 'Signature Cake');
 
         const pricingInfo = getCategoryPricingInfo(item.category || 'Classic Cakes');
+        const sizes = getProductSizesAndPrices(item);
+        let sizeSelectorHtml = '';
+        let initialPrice = item.price || '999';
+        let initialLabel = '1 kg';
+
+        if (sizes && sizes.length > 0) {
+          // Find the active index by matching the catalog item price
+          let activeIndex = sizes.findIndex(s => s.price === item.price);
+          if (activeIndex === -1) {
+            // Default to '1 Kg' or first option
+            const oneKgIndex = sizes.findIndex(s => s.label.toLowerCase() === '1 kg');
+            activeIndex = oneKgIndex !== -1 ? oneKgIndex : 0;
+          }
+          
+          initialPrice = sizes[activeIndex].price;
+          initialLabel = sizes[activeIndex].value;
+
+          sizeSelectorHtml = `<div class="card-size-selector">`;
+          sizes.forEach((s, sIdx) => {
+            const isActive = sIdx === activeIndex ? 'active' : '';
+            const escapedName = (item.name || 'Signature Cake').replace(/'/g, "\\'");
+            const imgPath = item.img || 'images/hero_chocolate.jpg';
+            const cat = item.category || 'Classic Cakes';
+            sizeSelectorHtml += `
+              <button type="button" class="size-pill ${isActive}" onclick="changeCardSize(this, '${index}', '${s.label}', '${s.price}', '${s.value}', '${escapedName}', '${imgPath}', '${cat}')">
+                ${s.label}
+              </button>
+            `;
+          });
+          sizeSelectorHtml += `</div>`;
+        }
+
+        const priceLabel = sizes ? 'Price' : 'Starts from';
 
         card.innerHTML = `
           <div class="product-img-wrapper">
@@ -1568,13 +1884,13 @@ function renderCatalog() {
           <div class="product-content">
             <h3 class="product-name">${item.name || 'Signature Cake'}</h3>
             <p class="product-desc">${item.desc || 'Delicious fresh cream cake.'}</p>
+            ${sizeSelectorHtml}
             <div class="product-footer">
               <div class="product-price">
-                <span class="price-label">Starts from</span>
-                <span class="price-value">₹${item.price || '999'}</span>
-                ${pricingInfo ? `<span class="price-options-detail" style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 4px; font-weight: normal;">(${pricingInfo})</span>` : ''}
+                <span class="price-label">${priceLabel}</span>
+                <span class="price-value">₹${initialPrice}</span>
               </div>
-              <button type="button" class="btn btn-primary product-btn-order" onclick="openOrderModal('${(item.name || 'Signature Cake').replace(/'/g, "\\'")}', '₹${item.price || '999'}', '${item.img || 'images/hero_chocolate.jpg'}')">Order Now</button>
+              <button type="button" class="btn btn-primary product-btn-order" onclick="openOrderModal('${(item.name || 'Signature Cake').replace(/'/g, "\\'")}', '₹${initialPrice}', '${item.img || 'images/hero_chocolate.jpg'}', '${initialLabel}', '${item.category || 'Classic Cakes'}')">Order Now</button>
             </div>
           </div>
         `;
