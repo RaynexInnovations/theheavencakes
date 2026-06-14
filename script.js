@@ -1912,7 +1912,7 @@ function initAdminSystem() {
       { name: "Choco Lava Cake", category: "Desserts", price: "60", desc: "Warm chocolate cake with a molten, liquid chocolate center that flows when cut.", img: "images/cat_desserts.jpg" },
 
       // BAR CAKE (Rs. 100)
-      { name: "Chunky Bar Cake", category: "Desserts", price: "100", desc: "Delicious rectangular sliced bar cake packed with chocolate chunks.", img: "images/cat_desserts.jpg" },
+      { name: "Chunky Bar Cake", category: "Desserts", price: "100", desc: "Moist rectangular sliced bar cake packed with chocolate chunks.", img: "images/cat_desserts.jpg" },
       { name: "Blue Berry Bar Cake", category: "Desserts", price: "100", desc: "Moist butter bar cake marbled with wild blueberry fruit fillings.", img: "images/cat_desserts.jpg" },
       { name: "Butterscotch Bar Cake", category: "Desserts", price: "100", desc: "Sweet bar cake layered with crunch butterscotch chips and caramel frosting.", img: "images/cat_desserts.jpg" },
 
@@ -2014,7 +2014,7 @@ function renderCatalog() {
           </div>
           <div class="product-content">
             <h3 class="product-name">${item.name || 'Signature Cake'}</h3>
-            <p class="product-desc">${item.desc || 'Delicious fresh cream cake.'}</p>
+            <p class="product-desc">${item.desc || 'Fresh cream cake.'}</p>
             ${sizeSelectorHtml}
             <div class="product-footer">
               <div class="product-price">
