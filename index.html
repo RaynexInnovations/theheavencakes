@@ -1466,7 +1466,7 @@
         <div class="admin-dashboard-layout">
           <!-- Left Column: Add Product -->
           <div class="admin-form-side">
-            <h4>Add New Product</h4>
+            <h4 id="admin-form-title">Add New Product</h4>
             <form id="admin-add-product-form" onsubmit="handleAdminAddProduct(event)">
               <div class="form-group">
                 <label for="admin-prod-name">Product Name *</label>
@@ -1507,7 +1507,10 @@
                   <img id="admin-image-preview" src="" alt="Preview" style="max-height: 120px; border-radius: 8px; border: 1px solid var(--gold);">
                 </div>
               </div>
-              <button type="submit" class="btn btn-primary form-btn-submit">Add Product to Menu</button>
+              <div class="admin-form-actions" style="display: flex; gap: 10px; margin-top: 15px;">
+                <button type="submit" id="admin-submit-btn" class="btn btn-primary form-btn-submit" style="flex: 1;">Add Product to Menu</button>
+                <button type="button" id="admin-cancel-edit-btn" class="btn btn-secondary" style="flex: 1; display: none; background-color: #f1ede4; border-color: #e5dec9; color: var(--text-main);" onclick="cancelProductEdit()">Cancel Edit</button>
+              </div>
             </form>
           </div>
 

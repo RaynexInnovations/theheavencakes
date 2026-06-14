@@ -1294,6 +1294,7 @@ window.handleCustomizerSubmit = handleCustomizerSubmit;
 
 // 19. ADMIN LOGIN & CATALOG MANAGEMENT SYSTEM
 let tempImageBase64 = '';
+let editProductIndex = -1;
 
 function initAdminSystem() {
   const catalogKey = 'theheavencakes_catalog';
@@ -1389,9 +1390,14 @@ function renderCatalog() {
         </td>
         <td><span class="catalog-price">₹${item.price}</span></td>
         <td>
-          <button type="button" class="btn-delete-prod" onclick="handleDeleteProduct(${index})" title="Delete Product">
-            <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
-          </button>
+          <div class="admin-actions-cell">
+            <button type="button" class="btn-edit-prod" onclick="handleEditProduct(${index})" title="Edit Product">
+              <i data-lucide="edit" style="width: 16px; height: 16px;"></i>
+            </button>
+            <button type="button" class="btn-delete-prod" onclick="handleDeleteProduct(${index})" title="Delete Product">
+              <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+            </button>
+          </div>
         </td>
       `;
       adminTbody.appendChild(tr);
@@ -1449,7 +1455,7 @@ function handleAdminLogin(event) {
   const pass = document.getElementById('admin-password').value.trim();
   const errorMsg = document.getElementById('login-error-msg');
 
-  if (user === 'admin' && pass === 'heavencakes123') {
+  if (user === 'theheavencakes' && pass === 'sukeshheaven') {
     sessionStorage.setItem('admin_logged_in', 'true');
     errorMsg.style.display = 'none';
     
@@ -1539,23 +1545,35 @@ function handleAdminAddProduct(event) {
   const catalogJson = localStorage.getItem(catalogKey);
   const catalog = catalogJson ? JSON.parse(catalogJson) : [];
 
-  catalog.push({
-    name,
-    category,
-    price,
-    desc,
-    img: tempImageBase64
-  });
-
-  localStorage.setItem(catalogKey, JSON.stringify(catalog));
-  
-  document.getElementById('admin-add-product-form').reset();
-  document.getElementById('upload-filename').textContent = 'Click to upload image file';
-  document.getElementById('image-preview-container').style.display = 'none';
-  tempImageBase64 = '';
+  if (editProductIndex > -1) {
+    catalog[editProductIndex] = {
+      name,
+      category,
+      price,
+      desc,
+      img: tempImageBase64
+    };
+    localStorage.setItem(catalogKey, JSON.stringify(catalog));
+    cancelProductEdit();
+    alert('Product successfully updated!');
+  } else {
+    catalog.push({
+      name,
+      category,
+      price,
+      desc,
+      img: tempImageBase64
+    });
+    localStorage.setItem(catalogKey, JSON.stringify(catalog));
+    
+    document.getElementById('admin-add-product-form').reset();
+    document.getElementById('upload-filename').textContent = 'Click to upload image file';
+    document.getElementById('image-preview-container').style.display = 'none';
+    tempImageBase64 = '';
+    alert('Product successfully added to the active menu catalog!');
+  }
 
   renderCatalog();
-  alert('Product successfully added to the active menu catalog!');
 }
 
 function handleDeleteProduct(index) {
@@ -1581,3 +1599,58 @@ window.handleImageFileSelect = handleImageFileSelect;
 window.handleAdminAddProduct = handleAdminAddProduct;
 window.handleDeleteProduct = handleDeleteProduct;
 window.initAdminSystem = initAdminSystem;
+
+function handleEditProduct(index) {
+  const catalogKey = 'theheavencakes_catalog';
+  const catalogJson = localStorage.getItem(catalogKey);
+  if (!catalogJson) return;
+
+  const catalog = JSON.parse(catalogJson);
+  const item = catalog[index];
+  if (!item) return;
+
+  editProductIndex = index;
+
+  // Populate form inputs
+  document.getElementById('admin-prod-name').value = item.name;
+  document.getElementById('admin-prod-category').value = item.category;
+  document.getElementById('admin-prod-price').value = item.price;
+  document.getElementById('admin-prod-desc').value = item.desc;
+
+  // Setup image preview
+  tempImageBase64 = item.img;
+  const previewContainer = document.getElementById('image-preview-container');
+  const previewImg = document.getElementById('admin-image-preview');
+  const filenameLabel = document.getElementById('upload-filename');
+
+  previewImg.src = item.img;
+  previewContainer.style.display = 'block';
+  filenameLabel.textContent = 'Existing Image Kept';
+
+  // Remove required attribute from file input since we have an existing image
+  document.getElementById('admin-prod-image').removeAttribute('required');
+
+  // Toggle edit states in UI
+  document.getElementById('admin-form-title').textContent = 'Edit Product';
+  document.getElementById('admin-submit-btn').textContent = 'Update Product';
+  document.getElementById('admin-cancel-edit-btn').style.display = 'block';
+}
+
+function cancelProductEdit() {
+  editProductIndex = -1;
+  tempImageBase64 = '';
+
+  // Reset form and file inputs
+  document.getElementById('admin-add-product-form').reset();
+  document.getElementById('admin-prod-image').setAttribute('required', 'required');
+  document.getElementById('upload-filename').textContent = 'Click to upload image file';
+  document.getElementById('image-preview-container').style.display = 'none';
+
+  // Restore UI states
+  document.getElementById('admin-form-title').textContent = 'Add New Product';
+  document.getElementById('admin-submit-btn').textContent = 'Add Product to Menu';
+  document.getElementById('admin-cancel-edit-btn').style.display = 'none';
+}
+
+window.handleEditProduct = handleEditProduct;
+window.cancelProductEdit = cancelProductEdit;
