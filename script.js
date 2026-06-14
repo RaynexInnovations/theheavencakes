@@ -1751,7 +1751,23 @@ async function refreshCatalogFromSupabase(catalogKey) {
     if (error) throw error;
 
     if (data && data.length > 0) {
-      safeStorage.setItem(catalogKey, JSON.stringify(data));
+      // Map old placeholder paths to the new premium generated assets for default items
+      const mappedData = data.map(item => {
+        if (item.name === "Vanilla Cake" && (item.img === "images/about_display.jpg" || !item.img)) {
+          return { ...item, img: "images/vanilla_cake.png" };
+        }
+        if (item.name === "Black Forest Cake" && (item.img === "images/about_crafting.jpg" || !item.img)) {
+          return { ...item, img: "images/black_forest_cake.png" };
+        }
+        if (item.name === "Pineapple Cake" && (item.img === "images/cat_kids.jpg" || !item.img)) {
+          return { ...item, img: "images/pineapple_cake.png" };
+        }
+        if (item.name === "Mango Cake" && (item.img === "images/prod_strawberry.jpg" || !item.img)) {
+          return { ...item, img: "images/mango_cake.png" };
+        }
+        return item;
+      });
+      safeStorage.setItem(catalogKey, JSON.stringify(mappedData));
       renderCatalog();
     } else {
       console.log("Supabase catalog table is empty. Seeding defaults...");
@@ -1794,10 +1810,10 @@ function initAdminSystem() {
   
   const initialItems = [
       // CLASSIC CAKES (1Kg = 650, Half Kg = 350, Pastry = 60)
-      { name: "Vanilla Cake", category: "Classic Cakes", price: "650", desc: "Classic fresh cream vanilla cake with soft sponge layers and sweet vanilla frosting.", img: "images/about_display.jpg" },
-      { name: "Black Forest Cake", category: "Classic Cakes", price: "650", desc: "Traditional German chocolate sponge layered with whipped cream, cherries, and dark chocolate flakes.", img: "images/about_crafting.jpg" },
-      { name: "Pineapple Cake", category: "Classic Cakes", price: "650", desc: "Tropical fresh cream cake with juicy pineapple chunks and light vanilla sponge.", img: "images/cat_kids.jpg" },
-      { name: "Mango Cake", category: "Classic Cakes", price: "650", desc: "Delectable fresh cream cake filled with sweet mango pulp and layered with premium cream.", img: "images/prod_strawberry.jpg" },
+      { name: "Vanilla Cake", category: "Classic Cakes", price: "650", desc: "Classic fresh cream vanilla cake with soft sponge layers and sweet vanilla frosting.", img: "images/vanilla_cake.png" },
+      { name: "Black Forest Cake", category: "Classic Cakes", price: "650", desc: "Traditional German chocolate sponge layered with whipped cream, cherries, and dark chocolate flakes.", img: "images/black_forest_cake.png" },
+      { name: "Pineapple Cake", category: "Classic Cakes", price: "650", desc: "Tropical fresh cream cake with juicy pineapple chunks and light vanilla sponge.", img: "images/pineapple_cake.png" },
+      { name: "Mango Cake", category: "Classic Cakes", price: "650", desc: "Delectable fresh cream cake filled with sweet mango pulp and layered with premium cream.", img: "images/mango_cake.png" },
       { name: "Strawberry Cake", category: "Classic Cakes", price: "650", desc: "Fluffy vanilla sponge filled with sweet and fruity strawberry compote.", img: "images/prod_strawberry.jpg" },
       { name: "Chocolate Vanilla Cake", category: "Classic Cakes", price: "650", desc: "A perfect dual-layer sponge combining rich chocolate and smooth vanilla creams.", img: "images/hero_chocolate.jpg" },
 
