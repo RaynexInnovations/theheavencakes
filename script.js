@@ -2415,3 +2415,166 @@ function cancelProductEdit() {
 
 window.handleEditProduct = handleEditProduct;
 window.cancelProductEdit = cancelProductEdit;
+
+// ==========================================================================
+// 20. CHATBOT ASSISTANT CONTROLLER
+// ==========================================================================
+function toggleChatbot() {
+  const panel = document.getElementById('chatbot-panel');
+  if (!panel) return;
+  panel.classList.toggle('active');
+
+  // Trigger Lucide icons rebuild for the panel if needed
+  if (panel.classList.contains('active') && typeof lucide !== 'undefined') {
+    lucide.createIcons({
+      attrs: { class: 'lucide' },
+      nameAttr: 'data-lucide',
+      node: panel
+    });
+  }
+}
+
+function addMessageToChat(text, sender) {
+  const container = document.getElementById('chatbot-messages');
+  if (!container) return;
+
+  const msgDiv = document.createElement('div');
+  msgDiv.className = `chat-message ${sender}`;
+  msgDiv.innerHTML = text.replace(/\n/g, '<br>');
+  container.appendChild(msgDiv);
+
+  // Auto scroll to bottom
+  container.scrollTop = container.scrollHeight;
+}
+
+function showTypingIndicator() {
+  const container = document.getElementById('chatbot-messages');
+  if (!container) return null;
+
+  const indicatorDiv = document.createElement('div');
+  indicatorDiv.className = 'chat-message bot typing-indicator-wrapper';
+  indicatorDiv.innerHTML = `
+    <div class="typing-indicator">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  `;
+  container.appendChild(indicatorDiv);
+  container.scrollTop = container.scrollHeight;
+  return indicatorDiv;
+}
+
+function generateBotResponse(userMsg) {
+  const text = userMsg.toLowerCase().trim();
+
+  // Pattern Matching Rules
+  if (text.includes('menu') || text.includes('flavor') || text.includes('category') || text.includes('what cake') || text.includes('types')) {
+    return `We offer a wide variety of premium, fresh cakes! 🎂<br><br>` +
+           `1. <strong>Classic Cakes</strong>: Vanilla, Black Forest, Pineapple, Mango, Strawberry (₹650/kg)<br>` +
+           `2. <strong>Premium Cakes</strong>: Butterscotch, Blueberry, Rasmalai, Mixed Fruit, Honey, White Forest (₹750/kg)<br>` +
+           `3. <strong>Exotic Cakes</strong>: Mousse, Tiramisu, Oreo, Vancho, Swiss Chocolate (₹850/kg)<br>` +
+           `4. <strong>Premium Choco Cakes</strong>: Truffle, Belgian Chocolate, Dutch Truffle (₹1000/kg)<br>` +
+           `5. <strong>Premium Exotic</strong>: Red Velvet, Roasted Almond, Nutella Hazelnut, Ferrero Rocher, Lotus Biscoff (₹1100/kg)<br>` +
+           `6. <strong>Cheese Cakes</strong>: Blueberry, Lotus Biscoff, Original NY Cheesecake (₹1100/kg)<br>` +
+           `7. <strong>Custom Cakes</strong>: Photo print cakes, shape theme cakes, 3D fondant masterpieces.<br><br>` +
+           `Which category would you like to explore? Click <strong>Cakes</strong> in the main navigation menu to see pictures!`;
+  }
+  
+  if (text.includes('price') || text.includes('cost') || text.includes('how much') || text.includes('rate') || text.includes('pricing')) {
+    return `Here is our official pricing guide (per Kg):<br><br>` +
+           `• <strong>Classic Cakes</strong>: ₹650 (Half Kg: ₹350)<br>` +
+           `• <strong>Premium Cakes</strong>: ₹750 (Half Kg: ₹400)<br>` +
+           `• <strong>Exotic Cakes</strong>: ₹850 (Half Kg: ₹450)<br>` +
+           `• <strong>Premium Choco Cakes</strong>: ₹1000 (Half Kg: ₹500)<br>` +
+           `• <strong>Premium Exotic / Cheesecakes</strong>: ₹1100 (Half Kg: ₹550)<br>` +
+           `• <strong>Cupcakes</strong>: ₹25 (Large: ₹50, Customized: ₹100)<br>` +
+           `• <strong>Desserts (Brownies, Muffins, Donuts)</strong>: ₹45 - ₹100<br><br>` +
+           `<em>*Customized theme cakes are quoted depending on design. Note that all cake cards have interactive weight options!</em>`;
+  }
+
+  if (text.includes('order') || text.includes('buy') || text.includes('purchase') || text.includes('how can i')) {
+    return `Ordering is super easy and fully integrated with WhatsApp! 🛍️<br><br>` +
+           `1. Scroll to the <strong>Cakes</strong> catalog section.<br>` +
+           `2. Click on different weight selector pills (e.g. <strong>Half Kg</strong>, <strong>1 Kg</strong>, <strong>Pastry</strong>) directly on the product card to see its price.<br>` +
+           `3. Click the <strong>Order Now</strong> button.<br>` +
+           `4. A customization modal will open where you can select size, write a cake message (e.g., "Happy Birthday"), and confirm.<br>` +
+           `5. Click <strong>Submit Order on WhatsApp</strong>. This automatically builds your order ticket and launches WhatsApp chat directly with our chef to finalize details!`;
+  }
+
+  if (text.includes('deliver') || text.includes('delivery') || text.includes('home delivery') || text.includes('charge')) {
+    return `Yes, we offer home delivery! 🚗<br><br>` +
+           `• <strong>Free Delivery</strong>: Within Kumbla town limits.<br>` +
+           `• <strong>Nearby Areas</strong>: Delivery charges apply based on the distance (Kasaragod area).<br><br>` +
+           `Please share your delivery location on WhatsApp during checkout, and we will confirm delivery options and timings immediately!`;
+  }
+
+  if (text.includes('veg') || text.includes('eggless') || text.includes('vegetarian') || text.includes('egg')) {
+    return `Good news! 🌱 <strong>All our cakes and desserts are 100% Vegetarian (Eggless)</strong> by default. We do not use eggs or any animal fats in our sponges, frosting, or toppings. You can enjoy them with absolute peace of mind!`;
+  }
+
+  if (text.includes('custom') || text.includes('photo') || text.includes('design') || text.includes('birthday cake') || text.includes('anniversary')) {
+    return `Yes! We specialize in custom-designed theme cakes! 🎨<br><br>` +
+           `• <strong>Photo Cakes</strong>: We can print any photo or design in edible sugar sheets on top of your favorite cake flavor (Starts at ₹1050/kg).<br>` +
+           `• <strong>Semi-Fondant / Shape Cakes</strong>: Number shapes, basic 2D theme decorations (Starts at ₹1099/kg).<br>` +
+           `• <strong>3D Custom Cakes</strong>: Full fondant themed shapes (Starts at ₹1500/kg).<br><br>` +
+           `To order a custom design, please send us a reference photo or your ideas on WhatsApp (using the float button below) and we will quote a price!`;
+  }
+
+  if (text.includes('time') || text.includes('hours') || text.includes('open') || text.includes('timing')) {
+    return `We are open and accepting orders:<br><br>` +
+           `• <strong>Monday to Sunday</strong>: 9:00 AM - 9:00 PM<br><br>` +
+           `<em>*Tip: We recommend placing orders for custom theme cakes at least 24 to 48 hours in advance!</em>`;
+  }
+
+  if (text.includes('hello') || text.includes('hi') || text.includes('hey') || text.includes('hola') || text.includes('assist')) {
+    return `Hello there! I'm here to help you. Ask me about our <strong>Menu</strong>, <strong>Prices</strong>, <strong>How to Order</strong>, or <strong>Custom Cakes</strong>!`;
+  }
+
+  // Fallback default response
+  return `I'd love to help you with that! For specific requests, custom design cake orders, or to check chef availability, please click the <strong>WhatsApp</strong> floating icon directly below. Our chef will be happy to assist you directly! 👩‍🍳`;
+}
+
+function handleQuickQuestion(questionText) {
+  addMessageToChat(questionText, 'user');
+  
+  // Show typing indicator
+  const indicator = showTypingIndicator();
+  
+  setTimeout(() => {
+    // Remove typing indicator
+    if (indicator) indicator.remove();
+    
+    // Generate and send response
+    const response = generateBotResponse(questionText);
+    addMessageToChat(response, 'bot');
+  }, 800 + Math.random() * 600);
+}
+
+function handleChatSubmit(event) {
+  event.preventDefault();
+  const inputEl = document.getElementById('chatbot-input');
+  if (!inputEl) return;
+
+  const text = inputEl.value.trim();
+  if (!text) return;
+
+  addMessageToChat(text, 'user');
+  inputEl.value = '';
+
+  // Show typing indicator
+  const indicator = showTypingIndicator();
+
+  setTimeout(() => {
+    // Remove typing indicator
+    if (indicator) indicator.remove();
+
+    // Generate response
+    const response = generateBotResponse(text);
+    addMessageToChat(response, 'bot');
+  }, 1000 + Math.random() * 800);
+}
+
+window.toggleChatbot = toggleChatbot;
+window.handleQuickQuestion = handleQuickQuestion;
+window.handleChatSubmit = handleChatSubmit;

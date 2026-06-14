@@ -1416,6 +1416,11 @@
     </div>
   </footer>
 
+  <!-- Floating Chatbot Assistant Trigger -->
+  <button id="chatbot-float" class="chatbot-float" onclick="toggleChatbot()" aria-label="Chat with Assistant">
+    <i data-lucide="message-square" class="chatbot-float-icon"></i>
+  </button>
+
   <!-- Sticky Floating WhatsApp Ordering CTA -->
   <a href="https://wa.me/919644553363?text=Hi%20The%20Heaven%20Cake,%20I'd%20like%20to%20order%20a%20fresh%20cake." target="_blank" rel="noopener" class="whatsapp-float" aria-label="Order on WhatsApp">
     <!-- Inline SVG for WhatsApp Logo for ultimate performance -->
@@ -1428,6 +1433,41 @@
   <button class="scroll-top" id="scroll-top" aria-label="Scroll to top">
     <i data-lucide="chevron-up" class="scroll-top-icon"></i>
   </button>
+
+  <!-- Interactive Chatbot Assistant Panel Interface -->
+  <div id="chatbot-panel" class="chatbot-panel">
+    <div class="chatbot-header">
+      <div class="chatbot-header-info">
+        <span class="chatbot-avatar">👩‍🍳</span>
+        <div>
+          <h5 class="chatbot-title" style="margin: 0;">Heaven's Assistant</h5>
+          <div class="chatbot-status"><span class="status-online-dot"></span> Online</div>
+        </div>
+      </div>
+      <button type="button" class="chatbot-close-btn" onclick="toggleChatbot()" aria-label="Close chat">&times;</button>
+    </div>
+    <div id="chatbot-messages" class="chatbot-messages">
+      <div class="chat-message bot">
+        Hi! Welcome to <strong>The Heaven Cakes</strong>. 🎂 I'm your virtual baking assistant. How can I help you sweeten your day?
+      </div>
+      <div class="chat-message bot">
+        Here are some quick questions you can ask:
+        <div class="quick-chips">
+          <button type="button" class="quick-chip" onclick="handleQuickQuestion('What cakes do you have?')">🎂 Cake Menu</button>
+          <button type="button" class="quick-chip" onclick="handleQuickQuestion('How can I order?')">🛍️ How to Order</button>
+          <button type="button" class="quick-chip" onclick="handleQuickQuestion('What are the prices?')">💰 Price List</button>
+          <button type="button" class="quick-chip" onclick="handleQuickQuestion('Do you deliver?')">🚗 Delivery Options</button>
+          <button type="button" class="quick-chip" onclick="handleQuickQuestion('Are your cakes vegetarian?')">Vegetarian</button>
+        </div>
+      </div>
+    </div>
+    <form id="chatbot-form" onsubmit="handleChatSubmit(event)">
+      <input type="text" id="chatbot-input" placeholder="Type a message..." required autocomplete="off">
+      <button type="submit" class="chatbot-send-btn" aria-label="Send message">
+        <i data-lucide="send" style="width: 18px; height: 18px;"></i>
+      </button>
+    </form>
+  </div>
 
   <!-- Quick Order Modal Interface -->
   <div class="modal-overlay" id="order-modal">
