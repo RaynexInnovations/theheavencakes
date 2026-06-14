@@ -1305,25 +1305,43 @@ function initAdminSystem() {
     const productCards = document.querySelectorAll('.product-card');
     const initialItems = [];
 
-    productCards.forEach(card => {
-      const name = card.getAttribute('data-name');
-      const category = card.getAttribute('data-category');
-      const desc = card.querySelector('.product-desc').textContent;
-      const price = card.querySelector('.price-value').textContent.replace('₹', '').trim();
-      const img = card.querySelector('.product-img-wrapper img').getAttribute('src');
-      
-      const imgRelative = img.includes('images/') ? 'images/' + img.split('images/')[1] : img;
+    try {
+      productCards.forEach(card => {
+        const name = card.getAttribute('data-name') || 'Signature Cake';
+        const category = card.getAttribute('data-category') || 'Premium Exotic';
+        
+        const descEl = card.querySelector('.product-desc');
+        const desc = descEl ? descEl.textContent.trim() : 'Delicious cake crafted with premium ingredients.';
+        
+        const priceEl = card.querySelector('.price-value');
+        const price = priceEl ? priceEl.textContent.replace('₹', '').trim() : '999';
+        
+        const imgEl = card.querySelector('.product-img-wrapper img');
+        let img = imgEl ? (imgEl.getAttribute('src') || '') : 'images/hero_chocolate.jpg';
+        
+        const imgRelative = img.includes('images/') ? 'images/' + img.split('images/')[1] : img;
 
-      initialItems.push({
-        name,
-        category,
-        desc,
-        price,
-        img: imgRelative
+        initialItems.push({
+          name,
+          category,
+          desc,
+          price,
+          img: imgRelative
+        });
       });
-    });
 
-    localStorage.setItem(catalogKey, JSON.stringify(initialItems));
+      if (initialItems.length > 0) {
+        localStorage.setItem(catalogKey, JSON.stringify(initialItems));
+      }
+    } catch (err) {
+      console.error("Error seeding storefront catalog cards:", err);
+      const fallbackItems = [
+        { name: "Belgian Chocolate Truffle", category: "Premium Choco", price: "1000", desc: "Rich, moist dark chocolate sponge layers smothered in luxury Belgian chocolate ganache.", img: "images/hero_chocolate.jpg" },
+        { name: "Heavenly Red Velvet", category: "Premium Exotic", price: "1100", desc: "Indulgent layers of classic red velvet sponge, infused with authentic cream cheese frosting.", img: "images/prod_red_velvet.jpg" },
+        { name: "Lotus Biscoff Cheesecake", category: "Cheese Cakes", price: "1100", desc: "Silky smooth New York style cheesecake topped with premium Lotus Biscoff spread and cookie crumbs.", img: "images/cat_photo.jpg" }
+      ];
+      localStorage.setItem(catalogKey, JSON.stringify(fallbackItems));
+    }
   }
 
   renderCatalog();
@@ -1334,82 +1352,88 @@ function renderCatalog() {
   const catalogJson = localStorage.getItem(catalogKey);
   if (!catalogJson) return;
 
-  const catalog = JSON.parse(catalogJson);
+  try {
+    const catalog = JSON.parse(catalogJson);
 
-  // Populate public storefront products grid
-  const productsGrid = document.getElementById('products-grid');
-  if (productsGrid) {
-    productsGrid.innerHTML = '';
-    
-    catalog.forEach((item, index) => {
-      const card = document.createElement('article');
-      const delayClass = index % 4 === 0 ? '' : ` delay-${index % 4}`;
-      card.className = `product-card reveal reveal-up${delayClass}`;
-      card.setAttribute('data-category', item.category);
-      card.setAttribute('data-name', item.name);
+    // Populate public storefront products grid
+    const productsGrid = document.getElementById('products-grid');
+    if (productsGrid) {
+      productsGrid.innerHTML = '';
+      
+      catalog.forEach((item, index) => {
+        const card = document.createElement('article');
+        const delayClass = index % 4 === 0 ? '' : ` delay-${index % 4}`;
+        card.className = `product-card reveal reveal-up${delayClass}`;
+        card.setAttribute('data-category', item.category || 'Premium Exotic');
+        card.setAttribute('data-name', item.name || 'Signature Cake');
 
-      card.innerHTML = `
-        <div class="product-img-wrapper">
-          <img src="${item.img}" alt="${item.name} image">
-          ${item.name.toLowerCase().includes('biscoff') || item.name.toLowerCase().includes('velvet') || item.name.toLowerCase().includes('truffle') ? '<span class="product-badge">Premium</span>' : ''}
-        </div>
-        <div class="product-content">
-          <h3 class="product-name">${item.name}</h3>
-          <p class="product-desc">${item.desc}</p>
-          <div class="product-footer">
-            <div class="product-price">
-              <span class="price-label">Starts from</span>
-              <span class="price-value">₹${item.price}</span>
+        card.innerHTML = `
+          <div class="product-img-wrapper">
+            <img src="${item.img || 'images/hero_chocolate.jpg'}" alt="${item.name || 'Cake'} image">
+            ${(item.name && (item.name.toLowerCase().includes('biscoff') || item.name.toLowerCase().includes('velvet') || item.name.toLowerCase().includes('truffle'))) ? '<span class="product-badge">Premium</span>' : ''}
+          </div>
+          <div class="product-content">
+            <h3 class="product-name">${item.name || 'Signature Cake'}</h3>
+            <p class="product-desc">${item.desc || 'Delicious fresh cream cake.'}</p>
+            <div class="product-footer">
+              <div class="product-price">
+                <span class="price-label">Starts from</span>
+                <span class="price-value">₹${item.price || '999'}</span>
+              </div>
+              <button type="button" class="btn btn-primary product-btn-order" onclick="openOrderModal('${(item.name || 'Signature Cake').replace(/'/g, "\\'")}', '₹${item.price || '999'}', '${item.img || 'images/hero_chocolate.jpg'}')">Order Now</button>
             </div>
-            <button type="button" class="btn btn-primary product-btn-order" onclick="openOrderModal('${item.name.replace(/'/g, "\\'")}', '₹${item.price}', '${item.img}')">Order Now</button>
           </div>
-        </div>
-      `;
-      productsGrid.appendChild(card);
-    });
-
-    // Reinitialize scroll reveal triggers for active nodes
-    if (typeof initScrollReveal === 'function') {
-      setTimeout(initScrollReveal, 100);
-    }
-  }
-
-  // Populate Admin Catalog Manager Table list
-  const adminTbody = document.getElementById('admin-catalog-tbody');
-  if (adminTbody) {
-    adminTbody.innerHTML = '';
-    
-    catalog.forEach((item, index) => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><img src="${item.img}" alt="${item.name}" class="catalog-img-thumb"></td>
-        <td>
-          <span class="catalog-name">${item.name}</span>
-          <span class="catalog-category">${item.category}</span>
-          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.desc}</div>
-        </td>
-        <td><span class="catalog-price">₹${item.price}</span></td>
-        <td>
-          <div class="admin-actions-cell">
-            <button type="button" class="btn-edit-prod" onclick="handleEditProduct(${index})" title="Edit Product">
-              <i data-lucide="edit" style="width: 16px; height: 16px;"></i>
-            </button>
-            <button type="button" class="btn-delete-prod" onclick="handleDeleteProduct(${index})" title="Delete Product">
-              <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
-            </button>
-          </div>
-        </td>
-      `;
-      adminTbody.appendChild(tr);
-    });
-
-    if (typeof lucide !== 'undefined') {
-      lucide.createIcons({
-        attrs: { class: 'lucide' },
-        nameAttr: 'data-lucide',
-        node: adminTbody
+        `;
+        productsGrid.appendChild(card);
       });
+
+      // Reinitialize scroll reveal triggers for active nodes
+      if (typeof initScrollReveal === 'function') {
+        setTimeout(initScrollReveal, 100);
+      }
     }
+
+    // Populate Admin Catalog Manager Table list
+    const adminTbody = document.getElementById('admin-catalog-tbody');
+    if (adminTbody) {
+      adminTbody.innerHTML = '';
+      
+      catalog.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><img src="${item.img || 'images/hero_chocolate.jpg'}" alt="${item.name || 'Cake'}" class="catalog-img-thumb"></td>
+          <td>
+            <span class="catalog-name">${item.name || 'Signature Cake'}</span>
+            <span class="catalog-category">${item.category || 'Premium Exotic'}</span>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.desc || ''}</div>
+          </td>
+          <td><span class="catalog-price">₹${item.price || '999'}</span></td>
+          <td>
+            <div class="admin-actions-cell">
+              <button type="button" class="btn-edit-prod" onclick="handleEditProduct(${index})" title="Edit Product">
+                <i data-lucide="edit" style="width: 16px; height: 16px;"></i>
+              </button>
+              <button type="button" class="btn-delete-prod" onclick="handleDeleteProduct(${index})" title="Delete Product">
+                <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        adminTbody.appendChild(tr);
+      });
+
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons({
+          attrs: { class: 'lucide' },
+          nameAttr: 'data-lucide',
+          node: adminTbody
+        });
+      }
+    }
+  } catch (err) {
+    console.error("Failed to parse catalog from localStorage:", err);
+    localStorage.removeItem(catalogKey);
+    location.reload();
   }
 }
 
