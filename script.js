@@ -1685,6 +1685,7 @@ let tempImageBase64 = '';
 let editProductIndex = -1;
 let isSupabaseEnabled = false;
 let supabaseClient = null;
+let globalInitialItems = [];
 
 function checkSupabaseConfig() {
   if (typeof supabaseConfig !== 'undefined' && 
@@ -1740,7 +1741,7 @@ function updateDatabaseStatusUI() {
   }
 }
 
-async function refreshCatalogFromSupabase(catalogKey, initialItems) {
+async function refreshCatalogFromSupabase(catalogKey) {
   try {
     const { data, error } = await supabaseClient
       .from('catalog')
@@ -1754,7 +1755,7 @@ async function refreshCatalogFromSupabase(catalogKey, initialItems) {
       renderCatalog();
     } else {
       console.log("Supabase catalog table is empty. Seeding defaults...");
-      const itemsToInsert = initialItems.map(item => ({
+      const itemsToInsert = globalInitialItems.map(item => ({
         name: item.name,
         category: item.category,
         price: item.price,
@@ -1779,7 +1780,7 @@ async function refreshCatalogFromSupabase(catalogKey, initialItems) {
     // Fallback load from local storage
     let catalogVal = safeStorage.getItem(catalogKey);
     if (!catalogVal) {
-      safeStorage.setItem(catalogKey, JSON.stringify(initialItems));
+      safeStorage.setItem(catalogKey, JSON.stringify(globalInitialItems));
     }
     renderCatalog();
   }
@@ -1909,15 +1910,17 @@ function initAdminSystem() {
       { name: "3D Customised Cake (Full Fondant)", category: "Custom Cakes", price: "1500", desc: "Stunning fully customized 3D fondant masterpieces made to order.", img: "images/cat_photo.jpg" }
     ];
 
+    globalInitialItems = initialItems;
+
     if (isSupabaseEnabled) {
       // Initial fetch
-      refreshCatalogFromSupabase(catalogKey, initialItems);
+      refreshCatalogFromSupabase(catalogKey);
 
       // Subscribe to real-time changes
       supabaseClient
         .channel('public:catalog')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'catalog' }, () => {
-          refreshCatalogFromSupabase(catalogKey, initialItems);
+          refreshCatalogFromSupabase(catalogKey);
         })
         .subscribe();
     } else {
@@ -2230,7 +2233,11 @@ function handleAdminAddProduct(event) {
       tempImageBase64 = '';
     }
     alert(msg);
-    renderCatalog();
+    if (isSupabaseEnabled) {
+      refreshCatalogFromSupabase(catalogKey);
+    } else {
+      renderCatalog();
+    }
   };
 
   const updatedItem = {
@@ -2315,7 +2322,7 @@ function handleDeleteProduct(index) {
     query.then(({ error }) => {
       if (error) throw error;
       alert('Product successfully deleted from Cloud Database!');
-      renderCatalog();
+      refreshCatalogFromSupabase(catalogKey);
     })
     .catch((err) => {
       console.error("Supabase delete failed:", err);
