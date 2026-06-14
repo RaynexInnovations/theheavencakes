@@ -2251,22 +2251,25 @@ function handleAdminAddProduct(event) {
     if (editProductIndex > -1) {
       // Update existing item
       const originalItem = catalog[editProductIndex];
+      const query = supabaseClient.from('catalog').update(updatedItem);
+      
       if (originalItem && originalItem.id) {
-        supabaseClient
-          .from('catalog')
-          .update(updatedItem)
-          .eq('id', originalItem.id)
-          .then(({ error }) => {
-            if (error) throw error;
-            handleSuccess('Product successfully updated in Cloud Database!');
-          })
-          .catch((err) => {
-            console.error("Supabase update failed:", err);
-            alert("Failed to sync changes to Cloud Database: " + err.message);
-          });
+        query.eq('id', originalItem.id);
+      } else if (originalItem && originalItem.name) {
+        query.eq('name', originalItem.name);
       } else {
-        alert("Error: Product does not have a valid Database ID.");
+        alert("Error: Product does not have a valid Database ID or Name.");
+        return;
       }
+
+      query.then(({ error }) => {
+        if (error) throw error;
+        handleSuccess('Product successfully updated in Cloud Database!');
+      })
+      .catch((err) => {
+        console.error("Supabase update failed:", err);
+        alert("Failed to sync changes to Cloud Database: " + err.message);
+      });
     } else {
       // Add new item
       supabaseClient
@@ -2298,23 +2301,26 @@ function handleDeleteProduct(index) {
   const itemToDelete = catalog[index];
 
   if (isSupabaseEnabled) {
+    const query = supabaseClient.from('catalog').delete();
+    
     if (itemToDelete && itemToDelete.id) {
-      supabaseClient
-        .from('catalog')
-        .delete()
-        .eq('id', itemToDelete.id)
-        .then(({ error }) => {
-          if (error) throw error;
-          alert('Product successfully deleted from Cloud Database!');
-          renderCatalog();
-        })
-        .catch((err) => {
-          console.error("Supabase delete failed:", err);
-          alert("Failed to sync deletion to Cloud Database: " + err.message);
-        });
+      query.eq('id', itemToDelete.id);
+    } else if (itemToDelete && itemToDelete.name) {
+      query.eq('name', itemToDelete.name);
     } else {
-      alert("Error: Product does not have a valid Database ID.");
+      alert("Error: Product does not have a valid Database ID or Name.");
+      return;
     }
+
+    query.then(({ error }) => {
+      if (error) throw error;
+      alert('Product successfully deleted from Cloud Database!');
+      renderCatalog();
+    })
+    .catch((err) => {
+      console.error("Supabase delete failed:", err);
+      alert("Failed to sync deletion to Cloud Database: " + err.message);
+    });
   } else {
     catalog.splice(index, 1);
     safeStorage.setItem(catalogKey, JSON.stringify(catalog));
