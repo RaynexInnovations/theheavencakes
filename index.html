@@ -994,7 +994,7 @@
                 </div>
               </div>
 
-              <!-- 3. Weight and Eggless Group -->
+              <!-- 3. Weight and Vegetarian Status Group -->
               <div class="customizer-row-split">
                 <div class="customizer-group half-width">
                   <label class="customizer-label" for="custom-weight">3. Cake Weight</label>
@@ -1007,11 +1007,11 @@
                   </select>
                 </div>
                 <div class="customizer-group half-width">
-                  <label class="customizer-label" for="custom-preference">4. Dietary Preference</label>
-                  <select id="custom-preference" name="preference" onchange="updateCustomizer()">
-                    <option value="Regular">Regular (Contains Egg)</option>
-                    <option value="Eggless">100% Vegetarian (Eggless) (+₹100/kg)</option>
-                  </select>
+                  <label class="customizer-label">4. Dietary Status</label>
+                  <div class="veg-badge" style="padding: 10px 16px; background: rgba(39, 174, 96, 0.08); border: 1px solid rgba(39, 174, 96, 0.25); border-radius: 12px; color: #27ae60; font-size: 0.82rem; font-weight: 600; display: flex; align-items: center; gap: 8px; height: 46px; user-select: none;">
+                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #27ae60; box-shadow: 0 0 8px #27ae60;"></span>
+                    100% Vegetarian (Eggless)
+                  </div>
                 </div>
               </div>
 
@@ -1230,11 +1230,11 @@
         <!-- FAQ 4 -->
         <div class="faq-item">
           <div class="faq-question">
-            <h4>Do you make eggless and healthy cakes?</h4>
+            <h4>Are your cakes 100% vegetarian?</h4>
             <i data-lucide="chevron-down" class="faq-toggle-icon"></i>
           </div>
           <div class="faq-answer">
-            <p>Yes! We offer 100% vegetarian eggless options for all our cake flavors. We also make gluten-free and reduced-sugar cakes upon request. Simply check the eggless preference box or mention it while placing custom orders.</p>
+            <p>Yes! The Heaven Cake is a 100% vegetarian bakery. All our cakes, pastries, cupcakes, and desserts are prepared entirely without eggs. We also offer reduced-sugar and gluten-free custom creations upon request.</p>
           </div>
         </div>
       </div>
@@ -1457,23 +1457,14 @@
           <input type="text" id="modal-name" placeholder="Fathima Rameez" required>
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="modal-weight">Cake Weight</label>
-            <select id="modal-weight">
-              <option value="1 kg">1 kg (Standard)</option>
-              <option value="1.5 kg">1.5 kg</option>
-              <option value="2 kg">2 kg</option>
-              <option value="3 kg">3 kg</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="modal-eggless">Preferences</label>
-            <select id="modal-eggless">
-              <option value="Regular">Regular (With Egg)</option>
-              <option value="Eggless">100% Vegetarian (Eggless)</option>
-            </select>
-          </div>
+        <div class="form-group">
+          <label for="modal-weight">Cake Weight</label>
+          <select id="modal-weight">
+            <option value="1 kg">1 kg (Standard)</option>
+            <option value="1.5 kg">1.5 kg</option>
+            <option value="2 kg">2 kg</option>
+            <option value="3 kg">3 kg</option>
+          </select>
         </div>
 
         <div class="form-group">

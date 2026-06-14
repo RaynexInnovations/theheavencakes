@@ -832,7 +832,6 @@ function handleModalSubmit(event) {
   const cakePrice = document.getElementById('modal-cake-price').textContent;
   const customerName = document.getElementById('modal-name').value;
   const cakeWeight = document.getElementById('modal-weight').value;
-  const cakePreference = document.getElementById('modal-eggless').value;
   const cakeMessage = document.getElementById('modal-message').value || 'None';
   const specialInstructions = document.getElementById('modal-instructions').value || 'None';
 
@@ -843,7 +842,7 @@ function handleModalSubmit(event) {
                   `💵 *Price:* ${cakePrice}%0A` +
                   `👤 *Name:* ${customerName}%0A` +
                   `⚖️ *Weight:* ${cakeWeight}%0A` +
-                  `🥚 *Eggless:* ${cakePreference}%0A` +
+                  `🌱 *Dietary:* 100% Vegetarian (Eggless)%0A` +
                   `✍️ *Message on Cake:* ${cakeMessage}%0A` +
                   `📝 *Instructions:* ${specialInstructions}`;
 
@@ -1385,7 +1384,6 @@ function updateCustomizer() {
   const tiers = selectedTiersEl ? parseInt(selectedTiersEl.value) : 1;
   
   const weight = parseFloat(document.getElementById('custom-weight').value || 1);
-  const preference = document.getElementById('custom-preference').value;
   
   // Update visual state for flavor pills
   const flavorPills = document.querySelectorAll('.flavor-pill');
@@ -1415,7 +1413,7 @@ function updateCustomizer() {
 
   const baseCost = baseRate * weight;
   const tierCost = tiers === 2 ? 500 : (tiers === 3 ? 1000 : 0);
-  const prefCost = preference === 'Eggless' ? 100 * weight : 0;
+  const prefCost = 0; // 100% vegetarian shop, no eggless surcharge
   
   let toppingsCost = 0;
   const checkedToppings = form.querySelectorAll('input[name="toppings"]:checked');
@@ -1521,7 +1519,6 @@ function handleCustomizerSubmit(event) {
   const flavor = form.querySelector('input[name="flavor"]:checked').value;
   const tiers = form.querySelector('input[name="tiers"]:checked').value;
   const weight = document.getElementById('custom-weight').value;
-  const preference = document.getElementById('custom-preference').value;
   
   const toppingsList = [];
   const checkedToppings = form.querySelectorAll('input[name="toppings"]:checked');
@@ -1543,7 +1540,7 @@ function handleCustomizerSubmit(event) {
                   `- *Base Flavor:* ${flavor}%0A` +
                   `- *Tiers:* ${tiers} Tier(s)%0A` +
                   `- *Weight:* ${weight} kg%0A` +
-                  `- *Dietary Pref:* ${preference}%0A` +
+                  `- *Dietary Pref:* 100% Vegetarian (Eggless)%0A` +
                   `- *Luxury Toppings:* ${toppingsStr}%0A` +
                   `- *Writing on Cake:* "${message}"%0A%0A` +
                   `📝 *Instructions:* ${instructions}%0A%0A` +
