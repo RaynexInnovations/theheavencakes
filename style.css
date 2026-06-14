@@ -3470,3 +3470,279 @@ footer {
   }
 }
 
+/* ==========================================================================
+   19. ADMIN PORTAL MODAL & DASHBOARD
+   ========================================================================== */
+.admin-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(30, 27, 27, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 10000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-normal);
+}
+
+.admin-modal.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.admin-modal-content {
+  background: var(--white);
+  border: 1px solid rgba(201, 162, 39, 0.2);
+  border-radius: 28px;
+  width: 90%;
+  max-width: 1000px;
+  max-height: 90vh;
+  box-shadow: var(--shadow-lg), 0 20px 50px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: scale(0.95);
+  transition: transform var(--transition-normal);
+}
+
+.admin-modal.active .admin-modal-content {
+  transform: scale(1);
+}
+
+.admin-modal-header {
+  padding: 24px 30px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--bg-cream);
+}
+
+.admin-modal-header h3 {
+  font-family: var(--font-headings);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.admin-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+  padding: 4px;
+  display: flex;
+}
+
+.admin-modal-close:hover {
+  opacity: 1;
+}
+
+.admin-view {
+  padding: 30px;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+/* Login box style */
+#admin-login-view {
+  max-width: 420px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 50px 30px;
+}
+
+/* Dashboard Layout */
+.admin-dashboard-layout {
+  display: grid;
+  grid-template-columns: 1.12fr 1.38fr;
+  gap: 40px;
+  align-items: start;
+}
+
+.admin-form-side h4,
+.admin-list-side h4 {
+  font-family: var(--font-headings);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed rgba(201, 162, 39, 0.2);
+  margin-top: 0;
+}
+
+.list-side-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed rgba(201, 162, 39, 0.2);
+}
+
+.list-side-header h4 {
+  margin-bottom: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* Dropzone Upload style */
+.upload-dropzone {
+  border: 2px dashed rgba(201, 162, 39, 0.3);
+  background-color: var(--bg-cream);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.upload-dropzone:hover {
+  border-color: var(--gold);
+  background-color: rgba(201, 162, 39, 0.05);
+}
+
+.upload-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.upload-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--gold);
+}
+
+.upload-dropzone p {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.upload-hint {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* Catalog Table styles */
+.admin-catalog-table-wrapper {
+  overflow-y: auto;
+  max-height: 480px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 14px;
+}
+
+.admin-catalog-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+}
+
+.admin-catalog-table th,
+.admin-catalog-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  vertical-align: middle;
+}
+
+.admin-catalog-table th {
+  background-color: var(--bg-cream);
+  font-weight: 600;
+  color: var(--text-main);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.catalog-img-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.catalog-name {
+  font-weight: 600;
+  color: var(--text-main);
+  display: block;
+}
+
+.catalog-category {
+  font-size: 0.7rem;
+  color: var(--gold);
+  background-color: rgba(201, 162, 39, 0.05);
+  padding: 2px 8px;
+  border-radius: 10px;
+  display: inline-block;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.catalog-price {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.btn-delete-prod {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ff3333;
+  opacity: 0.7;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  transition: all 0.2s ease;
+}
+
+.btn-delete-prod:hover {
+  opacity: 1;
+  background-color: rgba(255, 51, 51, 0.08);
+}
+
+/* Responsive adjustments for Admin Modal */
+@media screen and (max-width: 992px) {
+  .admin-dashboard-layout {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  
+  .admin-catalog-table-wrapper {
+    max-height: 350px;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .admin-modal-content {
+    width: 95%;
+    max-height: 95vh;
+  }
+  
+  .admin-view {
+    padding: 20px;
+  }
+  
+  .admin-catalog-table th,
+  .admin-catalog-table td {
+    padding: 10px 8px;
+  }
+}
+

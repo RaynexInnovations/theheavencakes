@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initLoader();
   initScrollEffects();
   initMobileNav();
+  initAdminSystem();
   initScrollReveal();
   initStatsCounter();
   initTestimonialsSlider();
@@ -1290,3 +1291,293 @@ function initActivityToasts() {
 // Bind handlers to window for inline calls
 window.updateCustomizer = updateCustomizer;
 window.handleCustomizerSubmit = handleCustomizerSubmit;
+
+// 19. ADMIN LOGIN & CATALOG MANAGEMENT SYSTEM
+let tempImageBase64 = '';
+
+function initAdminSystem() {
+  const catalogKey = 'theheavencakes_catalog';
+  let catalog = localStorage.getItem(catalogKey);
+
+  // Parse public storefront cards on first load if localStorage is empty
+  if (!catalog) {
+    const productCards = document.querySelectorAll('.product-card');
+    const initialItems = [];
+
+    productCards.forEach(card => {
+      const name = card.getAttribute('data-name');
+      const category = card.getAttribute('data-category');
+      const desc = card.querySelector('.product-desc').textContent;
+      const price = card.querySelector('.price-value').textContent.replace('₹', '').trim();
+      const img = card.querySelector('.product-img-wrapper img').getAttribute('src');
+      
+      const imgRelative = img.includes('images/') ? 'images/' + img.split('images/')[1] : img;
+
+      initialItems.push({
+        name,
+        category,
+        desc,
+        price,
+        img: imgRelative
+      });
+    });
+
+    localStorage.setItem(catalogKey, JSON.stringify(initialItems));
+  }
+
+  renderCatalog();
+}
+
+function renderCatalog() {
+  const catalogKey = 'theheavencakes_catalog';
+  const catalogJson = localStorage.getItem(catalogKey);
+  if (!catalogJson) return;
+
+  const catalog = JSON.parse(catalogJson);
+
+  // Populate public storefront products grid
+  const productsGrid = document.getElementById('products-grid');
+  if (productsGrid) {
+    productsGrid.innerHTML = '';
+    
+    catalog.forEach((item, index) => {
+      const card = document.createElement('article');
+      const delayClass = index % 4 === 0 ? '' : ` delay-${index % 4}`;
+      card.className = `product-card reveal reveal-up${delayClass}`;
+      card.setAttribute('data-category', item.category);
+      card.setAttribute('data-name', item.name);
+
+      card.innerHTML = `
+        <div class="product-img-wrapper">
+          <img src="${item.img}" alt="${item.name} image">
+          ${item.name.toLowerCase().includes('biscoff') || item.name.toLowerCase().includes('velvet') || item.name.toLowerCase().includes('truffle') ? '<span class="product-badge">Premium</span>' : ''}
+        </div>
+        <div class="product-content">
+          <h3 class="product-name">${item.name}</h3>
+          <p class="product-desc">${item.desc}</p>
+          <div class="product-footer">
+            <div class="product-price">
+              <span class="price-label">Starts from</span>
+              <span class="price-value">₹${item.price}</span>
+            </div>
+            <button type="button" class="btn btn-primary product-btn-order" onclick="openOrderModal('${item.name.replace(/'/g, "\\'")}', '₹${item.price}', '${item.img}')">Order Now</button>
+          </div>
+        </div>
+      `;
+      productsGrid.appendChild(card);
+    });
+
+    // Reinitialize scroll reveal triggers for active nodes
+    if (typeof initScrollReveal === 'function') {
+      setTimeout(initScrollReveal, 100);
+    }
+  }
+
+  // Populate Admin Catalog Manager Table list
+  const adminTbody = document.getElementById('admin-catalog-tbody');
+  if (adminTbody) {
+    adminTbody.innerHTML = '';
+    
+    catalog.forEach((item, index) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><img src="${item.img}" alt="${item.name}" class="catalog-img-thumb"></td>
+        <td>
+          <span class="catalog-name">${item.name}</span>
+          <span class="catalog-category">${item.category}</span>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.desc}</div>
+        </td>
+        <td><span class="catalog-price">₹${item.price}</span></td>
+        <td>
+          <button type="button" class="btn-delete-prod" onclick="handleDeleteProduct(${index})" title="Delete Product">
+            <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+          </button>
+        </td>
+      `;
+      adminTbody.appendChild(tr);
+    });
+
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons({
+        attrs: { class: 'lucide' },
+        nameAttr: 'data-lucide',
+        node: adminTbody
+      });
+    }
+  }
+}
+
+// Modal Toggle Hooks
+function openAdminModal() {
+  const modal = document.getElementById('admin-modal');
+  if (!modal) return;
+
+  document.getElementById('admin-username').value = '';
+  document.getElementById('admin-password').value = '';
+  document.getElementById('login-error-msg').style.display = 'none';
+
+  const isLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true';
+  const loginView = document.getElementById('admin-login-view');
+  const dashView = document.getElementById('admin-dashboard-view');
+  const title = document.getElementById('admin-title');
+
+  if (isLoggedIn) {
+    loginView.style.display = 'none';
+    dashView.style.display = 'block';
+    title.textContent = 'Admin Control Panel';
+  } else {
+    loginView.style.display = 'block';
+    dashView.style.display = 'none';
+    title.textContent = 'Admin Login';
+  }
+
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAdminModal() {
+  const modal = document.getElementById('admin-modal');
+  if (!modal) return;
+  modal.classList.remove('active');
+  document.body.style.overflow = 'auto';
+}
+
+// Admin login session validation
+function handleAdminLogin(event) {
+  event.preventDefault();
+  const user = document.getElementById('admin-username').value.trim();
+  const pass = document.getElementById('admin-password').value.trim();
+  const errorMsg = document.getElementById('login-error-msg');
+
+  if (user === 'admin' && pass === 'heavencakes123') {
+    sessionStorage.setItem('admin_logged_in', 'true');
+    errorMsg.style.display = 'none';
+    
+    document.getElementById('admin-login-view').style.display = 'none';
+    document.getElementById('admin-dashboard-view').style.display = 'block';
+    document.getElementById('admin-title').textContent = 'Admin Control Panel';
+  } else {
+    errorMsg.style.display = 'block';
+  }
+}
+
+function handleAdminLogout() {
+  sessionStorage.removeItem('admin_logged_in');
+  document.getElementById('admin-login-view').style.display = 'block';
+  document.getElementById('admin-dashboard-view').style.display = 'none';
+  document.getElementById('admin-title').textContent = 'Admin Login';
+}
+
+// Compress uploaded files to tiny base64 jpegs using canvas to respect localstorage storage limits
+function handleImageFileSelect(event) {
+  const file = event.target.files[0];
+  const filenameLabel = document.getElementById('upload-filename');
+  const previewContainer = document.getElementById('image-preview-container');
+  const previewImg = document.getElementById('admin-image-preview');
+
+  if (!file) {
+    tempImageBase64 = '';
+    filenameLabel.textContent = 'Click to upload image file';
+    previewContainer.style.display = 'none';
+    return;
+  }
+
+  filenameLabel.textContent = file.name;
+  
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload = function(e) {
+    const img = new Image();
+    img.src = e.target.result;
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const MAX_WIDTH = 400;
+      const MAX_HEIGHT = 400;
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height) {
+        if (width > MAX_WIDTH) {
+          height *= MAX_WIDTH / width;
+          width = MAX_WIDTH;
+        }
+      } else {
+        if (height > MAX_HEIGHT) {
+          width *= MAX_HEIGHT / height;
+          height = MAX_HEIGHT;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      tempImageBase64 = canvas.toDataURL('image/jpeg', 0.75);
+      
+      previewImg.src = tempImageBase64;
+      previewContainer.style.display = 'block';
+    };
+  };
+}
+
+// Database push and deletion operations
+function handleAdminAddProduct(event) {
+  event.preventDefault();
+  
+  const name = document.getElementById('admin-prod-name').value.trim();
+  const category = document.getElementById('admin-prod-category').value;
+  const price = document.getElementById('admin-prod-price').value.replace('₹', '').trim();
+  const desc = document.getElementById('admin-prod-desc').value.trim();
+
+  if (!tempImageBase64) {
+    alert('Please upload a product photo.');
+    return;
+  }
+
+  const catalogKey = 'theheavencakes_catalog';
+  const catalogJson = localStorage.getItem(catalogKey);
+  const catalog = catalogJson ? JSON.parse(catalogJson) : [];
+
+  catalog.push({
+    name,
+    category,
+    price,
+    desc,
+    img: tempImageBase64
+  });
+
+  localStorage.setItem(catalogKey, JSON.stringify(catalog));
+  
+  document.getElementById('admin-add-product-form').reset();
+  document.getElementById('upload-filename').textContent = 'Click to upload image file';
+  document.getElementById('image-preview-container').style.display = 'none';
+  tempImageBase64 = '';
+
+  renderCatalog();
+  alert('Product successfully added to the active menu catalog!');
+}
+
+function handleDeleteProduct(index) {
+  if (!confirm('Are you sure you want to delete this product from the menu catalog?')) return;
+
+  const catalogKey = 'theheavencakes_catalog';
+  const catalogJson = localStorage.getItem(catalogKey);
+  if (!catalogJson) return;
+
+  const catalog = JSON.parse(catalogJson);
+  catalog.splice(index, 1);
+
+  localStorage.setItem(catalogKey, JSON.stringify(catalog));
+  renderCatalog();
+}
+
+// Bind admin hooks to window scope for inline HTML calls
+window.openAdminModal = openAdminModal;
+window.closeAdminModal = closeAdminModal;
+window.handleAdminLogin = handleAdminLogin;
+window.handleAdminLogout = handleAdminLogout;
+window.handleImageFileSelect = handleImageFileSelect;
+window.handleAdminAddProduct = handleAdminAddProduct;
+window.handleDeleteProduct = handleDeleteProduct;
+window.initAdminSystem = initAdminSystem;
