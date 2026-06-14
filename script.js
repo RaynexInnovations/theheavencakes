@@ -1683,14 +1683,73 @@ const safeStorage = {
 
 let tempImageBase64 = '';
 let editProductIndex = -1;
+let isFirebaseEnabled = false;
+let dbRef = null;
+
+function checkFirebaseConfig() {
+  if (typeof firebaseConfig !== 'undefined' && 
+      firebaseConfig.apiKey && 
+      firebaseConfig.apiKey !== "YOUR_API_KEY" && 
+      firebaseConfig.databaseURL && 
+      firebaseConfig.databaseURL !== "YOUR_DATABASE_URL") {
+    return true;
+  }
+  return false;
+}
+
+function initializeFirebaseApp() {
+  if (checkFirebaseConfig()) {
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      dbRef = firebase.database().ref('catalog');
+      isFirebaseEnabled = true;
+      console.log("Firebase Realtime Database initialized successfully.");
+
+      // Set up auth state listener
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          console.log("Firebase Admin Authenticated:", user.email);
+          safeStorage.setItem('admin_logged_in', 'true', true);
+        }
+      });
+    } catch (error) {
+      console.error("Firebase initialization failed:", error);
+      isFirebaseEnabled = false;
+    }
+  } else {
+    console.log("Firebase is not configured. Falling back to Local Storage mode.");
+    isFirebaseEnabled = false;
+  }
+}
+
+function updateFirebaseStatusUI() {
+  const statusBadge = document.getElementById('firebase-status-badge');
+  const statusDot = document.getElementById('firebase-status-dot');
+  const statusText = document.getElementById('firebase-status-text');
+  if (!statusBadge || !statusDot || !statusText) return;
+
+  if (isFirebaseEnabled) {
+    statusBadge.style.color = '#81c784'; // Soft light green
+    statusDot.style.backgroundColor = '#4caf50'; // Vibrant green
+    statusDot.style.boxShadow = '0 0 8px #4caf50';
+    statusText.textContent = 'Database: Cloud Connected (Firebase)';
+  } else {
+    statusBadge.style.color = '#ffb74d'; // Soft orange
+    statusDot.style.backgroundColor = '#ff9800'; // Vibrant orange
+    statusDot.style.boxShadow = '0 0 8px #ff9800';
+    statusText.textContent = 'Database: Local Storage Fallback';
+  }
+}
 
 function initAdminSystem() {
-  const catalogKey = 'theheavencakes_catalog_v4';
-  let catalog = safeStorage.getItem(catalogKey);
+  initializeFirebaseApp();
+  updateFirebaseStatusUI();
 
-  // Seed all cakes and desserts from the official menu sheets if catalog is empty
-  if (!catalog) {
-    const initialItems = [
+  const catalogKey = 'theheavencakes_catalog_v4';
+  
+  const initialItems = [
       // CLASSIC CAKES (1Kg = 650, Half Kg = 350, Pastry = 60)
       { name: "Vanilla Cake", category: "Classic Cakes", price: "650", desc: "Classic fresh cream vanilla cake with soft sponge layers and sweet vanilla frosting.", img: "images/about_display.jpg" },
       { name: "Black Forest Cake", category: "Classic Cakes", price: "650", desc: "Traditional German chocolate sponge layered with whipped cream, cherries, and dark chocolate flakes.", img: "images/about_crafting.jpg" },
@@ -1808,14 +1867,38 @@ function initAdminSystem() {
       { name: "3D Customised Cake (Full Fondant)", category: "Custom Cakes", price: "1500", desc: "Stunning fully customized 3D fondant masterpieces made to order.", img: "images/cat_photo.jpg" }
     ];
 
-    try {
-      safeStorage.setItem(catalogKey, JSON.stringify(initialItems));
-    } catch (err) {
-      console.error("Error seeding catalog:", err);
+    if (isFirebaseEnabled) {
+      // Set up real-time listener to sync catalog changes immediately to everyone
+      dbRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data && Array.isArray(data)) {
+          safeStorage.setItem(catalogKey, JSON.stringify(data));
+          renderCatalog();
+        } else {
+          // If database path is empty, seed it with the default list
+          console.log("Database path /catalog is empty. Seeding defaults...");
+          dbRef.set(initialItems);
+        }
+      }, (error) => {
+        console.error("Firebase Database read failed:", error);
+        // Fallback load from local storage
+        let catalogVal = safeStorage.getItem(catalogKey);
+        if (!catalogVal) {
+          safeStorage.setItem(catalogKey, JSON.stringify(initialItems));
+        }
+        renderCatalog();
+      });
+    } else {
+      let catalogVal = safeStorage.getItem(catalogKey);
+      if (!catalogVal) {
+        try {
+          safeStorage.setItem(catalogKey, JSON.stringify(initialItems));
+        } catch (err) {
+          console.error("Error seeding catalog:", err);
+        }
+      }
+      renderCatalog();
     }
-  }
-
-  renderCatalog();
 }
 
 function renderCatalog() {
@@ -1986,20 +2069,49 @@ function handleAdminLogin(event) {
   const pass = document.getElementById('admin-password').value.trim();
   const errorMsg = document.getElementById('login-error-msg');
 
-  if (user === 'theheavencakes' && pass === 'sukeshheaven') {
-    safeStorage.setItem('admin_logged_in', 'true', true);
-    errorMsg.style.display = 'none';
+  if (isFirebaseEnabled) {
+    // Firebase Auth Path
+    // Map username 'theheavencakes' to the registered Firebase Auth admin email
+    const email = user === 'theheavencakes' ? 'admin@theheavencakes.com' : (user.includes('@') ? user : `${user}@theheavencakes.com`);
     
-    document.getElementById('admin-login-view').style.display = 'none';
-    document.getElementById('admin-dashboard-view').style.display = 'block';
-    document.getElementById('admin-title').textContent = 'Admin Control Panel';
+    firebase.auth().signInWithEmailAndPassword(email, pass)
+      .then(() => {
+        safeStorage.setItem('admin_logged_in', 'true', true);
+        errorMsg.style.display = 'none';
+        
+        document.getElementById('admin-login-view').style.display = 'none';
+        document.getElementById('admin-dashboard-view').style.display = 'block';
+        document.getElementById('admin-title').textContent = 'Admin Control Panel';
+        // Reload dashboard catalog list
+        renderCatalog();
+      })
+      .catch((error) => {
+        console.error("Firebase Auth sign-in failed:", error);
+        errorMsg.textContent = "Sign-in failed: " + error.message;
+        errorMsg.style.display = 'block';
+      });
   } else {
-    errorMsg.style.display = 'block';
+    // Local Storage Fallback Path
+    if (user === 'theheavencakes' && pass === 'sukeshheaven') {
+      safeStorage.setItem('admin_logged_in', 'true', true);
+      errorMsg.style.display = 'none';
+      
+      document.getElementById('admin-login-view').style.display = 'none';
+      document.getElementById('admin-dashboard-view').style.display = 'block';
+      document.getElementById('admin-title').textContent = 'Admin Control Panel';
+      renderCatalog();
+    } else {
+      errorMsg.textContent = "Incorrect username or password. Please try again.";
+      errorMsg.style.display = 'block';
+    }
   }
 }
 
 function handleAdminLogout() {
   safeStorage.removeItem('admin_logged_in', true);
+  if (isFirebaseEnabled) {
+    firebase.auth().signOut().catch(err => console.error("Firebase sign-out failed:", err));
+  }
   document.getElementById('admin-login-view').style.display = 'block';
   document.getElementById('admin-dashboard-view').style.display = 'none';
   document.getElementById('admin-title').textContent = 'Admin Login';
@@ -2076,35 +2188,46 @@ function handleAdminAddProduct(event) {
   const catalogJson = safeStorage.getItem(catalogKey);
   const catalog = catalogJson ? JSON.parse(catalogJson) : [];
 
+  const handleSuccess = (msg) => {
+    if (editProductIndex > -1) {
+      cancelProductEdit();
+    } else {
+      document.getElementById('admin-add-product-form').reset();
+      document.getElementById('upload-filename').textContent = 'Click to upload image file';
+      document.getElementById('image-preview-container').style.display = 'none';
+      tempImageBase64 = '';
+    }
+    alert(msg);
+    renderCatalog();
+  };
+
+  const updatedItem = {
+    name,
+    category,
+    price,
+    desc,
+    img: tempImageBase64
+  };
+
   if (editProductIndex > -1) {
-    catalog[editProductIndex] = {
-      name,
-      category,
-      price,
-      desc,
-      img: tempImageBase64
-    };
-    safeStorage.setItem(catalogKey, JSON.stringify(catalog));
-    cancelProductEdit();
-    alert('Product successfully updated!');
+    catalog[editProductIndex] = updatedItem;
   } else {
-    catalog.push({
-      name,
-      category,
-      price,
-      desc,
-      img: tempImageBase64
-    });
-    safeStorage.setItem(catalogKey, JSON.stringify(catalog));
-    
-    document.getElementById('admin-add-product-form').reset();
-    document.getElementById('upload-filename').textContent = 'Click to upload image file';
-    document.getElementById('image-preview-container').style.display = 'none';
-    tempImageBase64 = '';
-    alert('Product successfully added to the active menu catalog!');
+    catalog.push(updatedItem);
   }
 
-  renderCatalog();
+  if (isFirebaseEnabled) {
+    dbRef.set(catalog)
+      .then(() => {
+        handleSuccess(editProductIndex > -1 ? 'Product successfully updated in Cloud Database!' : 'Product successfully added to Cloud Database!');
+      })
+      .catch((err) => {
+        console.error("Firebase Database set failed:", err);
+        alert("Failed to sync changes to Cloud Database: " + err.message);
+      });
+  } else {
+    safeStorage.setItem(catalogKey, JSON.stringify(catalog));
+    handleSuccess(editProductIndex > -1 ? 'Product successfully updated!' : 'Product successfully added to the active menu catalog!');
+  }
 }
 
 function handleDeleteProduct(index) {
@@ -2117,8 +2240,20 @@ function handleDeleteProduct(index) {
   const catalog = JSON.parse(catalogJson);
   catalog.splice(index, 1);
 
-  safeStorage.setItem(catalogKey, JSON.stringify(catalog));
-  renderCatalog();
+  if (isFirebaseEnabled) {
+    dbRef.set(catalog)
+      .then(() => {
+        alert('Product successfully deleted from Cloud Database!');
+        renderCatalog();
+      })
+      .catch((err) => {
+        console.error("Firebase Database delete failed:", err);
+        alert("Failed to sync deletion to Cloud Database: " + err.message);
+      });
+  } else {
+    safeStorage.setItem(catalogKey, JSON.stringify(catalog));
+    renderCatalog();
+  }
 }
 
 // Bind admin hooks to window scope for inline HTML calls
