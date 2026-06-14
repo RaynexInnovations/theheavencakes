@@ -373,8 +373,22 @@ function filterCategory(element, categoryName) {
 
 // Category selection helper from categories cards
 function filterByCategory(categoryName) {
-  const targetPill = Array.from(document.querySelectorAll('.filter-pill'))
-    .find(pill => pill.textContent.trim().toLowerCase().includes(categoryName.substring(0, 5).toLowerCase()));
+  // Try exact match first
+  let targetPill = Array.from(document.querySelectorAll('.filter-pill'))
+    .find(pill => pill.textContent.trim().toLowerCase() === categoryName.toLowerCase());
+  
+  // Try partial include matches if exact fails
+  if (!targetPill) {
+    targetPill = Array.from(document.querySelectorAll('.filter-pill'))
+      .find(pill => pill.textContent.trim().toLowerCase().includes(categoryName.toLowerCase()) || 
+                    categoryName.toLowerCase().includes(pill.textContent.trim().toLowerCase()));
+  }
+
+  // Fallback to substring match
+  if (!targetPill) {
+    targetPill = Array.from(document.querySelectorAll('.filter-pill'))
+      .find(pill => pill.textContent.trim().toLowerCase().includes(categoryName.substring(0, 5).toLowerCase()));
+  }
   
   if (targetPill) {
     targetPill.click();
@@ -1068,13 +1082,13 @@ function updateCustomizer() {
     }
   });
 
-  // 2. Run calculations
-  let baseRate = 800; // default Chocolate
-  if (flavor.includes('Velvet')) baseRate = 750;
-  else if (flavor.includes('Butterscotch')) baseRate = 650;
-  else if (flavor.includes('Vanilla')) baseRate = 600;
-  else if (flavor.includes('Strawberry')) baseRate = 650;
-  else if (flavor.includes('Mango')) baseRate = 700;
+  // 2. Run calculations (aligned with official menu rates for 1Kg)
+  let baseRate = 1000; // default Chocolate (Premium Choco: 1000)
+  if (flavor.includes('Velvet')) baseRate = 1100; // Red Velvet (Premium Exotic: 1100)
+  else if (flavor.includes('Butterscotch')) baseRate = 750; // Butterscotch (Premium Cakes: 750)
+  else if (flavor.includes('Vanilla')) baseRate = 650; // Vanilla (Classic Cake: 650)
+  else if (flavor.includes('Strawberry')) baseRate = 650; // Strawberry (Classic Cake: 650)
+  else if (flavor.includes('Mango')) baseRate = 650; // Mango (Classic Cake: 650)
 
   const baseCost = baseRate * weight;
   const tierCost = tiers === 2 ? 500 : (tiers === 3 ? 1000 : 0);
@@ -1351,7 +1365,7 @@ let tempImageBase64 = '';
 let editProductIndex = -1;
 
 function initAdminSystem() {
-  const catalogKey = 'theheavencakes_catalog';
+  const catalogKey = 'theheavencakes_catalog_v3';
   let catalog = safeStorage.getItem(catalogKey);
 
   // Parse public storefront cards on first load if localStorage is empty
@@ -1390,8 +1404,8 @@ function initAdminSystem() {
     } catch (err) {
       console.error("Error seeding storefront catalog cards:", err);
       const fallbackItems = [
-        { name: "Belgian Chocolate Truffle", category: "Premium Choco", price: "1000", desc: "Rich, moist dark chocolate sponge layers smothered in luxury Belgian chocolate ganache.", img: "images/hero_chocolate.jpg" },
-        { name: "Heavenly Red Velvet", category: "Premium Exotic", price: "1100", desc: "Indulgent layers of classic red velvet sponge, infused with authentic cream cheese frosting.", img: "images/prod_red_velvet.jpg" },
+        { name: "Choco Truffle", category: "Premium Choco Cakes", price: "1000", desc: "Rich chocolate sponge layered with dense chocolate ganache and chocolate chips.", img: "images/hero_chocolate.jpg" },
+        { name: "Red Velvet", category: "Premium Exotic", price: "1100", desc: "Indulgent layers of classic red velvet sponge, infused with authentic cream cheese frosting.", img: "images/prod_red_velvet.jpg" },
         { name: "Lotus Biscoff Cheesecake", category: "Cheese Cakes", price: "1100", desc: "Silky smooth New York style cheesecake topped with premium Lotus Biscoff spread and cookie crumbs.", img: "images/cat_photo.jpg" }
       ];
       safeStorage.setItem(catalogKey, JSON.stringify(fallbackItems));
@@ -1402,7 +1416,7 @@ function initAdminSystem() {
 }
 
 function renderCatalog() {
-  const catalogKey = 'theheavencakes_catalog';
+  const catalogKey = 'theheavencakes_catalog_v3';
   const catalogJson = safeStorage.getItem(catalogKey);
   if (!catalogJson) return;
 
@@ -1619,7 +1633,7 @@ function handleAdminAddProduct(event) {
     return;
   }
 
-  const catalogKey = 'theheavencakes_catalog';
+  const catalogKey = 'theheavencakes_catalog_v3';
   const catalogJson = safeStorage.getItem(catalogKey);
   const catalog = catalogJson ? JSON.parse(catalogJson) : [];
 
@@ -1657,7 +1671,7 @@ function handleAdminAddProduct(event) {
 function handleDeleteProduct(index) {
   if (!confirm('Are you sure you want to delete this product from the menu catalog?')) return;
 
-  const catalogKey = 'theheavencakes_catalog';
+  const catalogKey = 'theheavencakes_catalog_v3';
   const catalogJson = safeStorage.getItem(catalogKey);
   if (!catalogJson) return;
 
@@ -1679,7 +1693,7 @@ window.handleDeleteProduct = handleDeleteProduct;
 window.initAdminSystem = initAdminSystem;
 
 function handleEditProduct(index) {
-  const catalogKey = 'theheavencakes_catalog';
+  const catalogKey = 'theheavencakes_catalog_v3';
   const catalogJson = safeStorage.getItem(catalogKey);
   if (!catalogJson) return;
 
