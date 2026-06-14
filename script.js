@@ -5,26 +5,44 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize Lucide SVG Icons
-  if (typeof lucide !== 'undefined') {
-    lucide.createIcons();
+  try {
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
+  } catch (err) {
+    console.error("Lucide icons initialization failed:", err);
   }
 
-  initLoader();
-  initScrollEffects();
-  initMobileNav();
-  initAdminSystem();
-  initScrollReveal();
-  initStatsCounter();
-  initTestimonialsSlider();
-  initFaqAccordion();
-  initMouseParallax();
-  initParticles();
-  initSplitTextAnimation();
-  initWhyChooseLoop();
-  initScrollStack();
-  initHeroScrollAnimation();
-  initCakeCustomizer();
-  initActivityToasts();
+  const initializers = [
+    { name: 'Loader', fn: initLoader },
+    { name: 'ScrollEffects', fn: initScrollEffects },
+    { name: 'MobileNav', fn: initMobileNav },
+    { name: 'AdminSystem', fn: initAdminSystem },
+    { name: 'ScrollReveal', fn: initScrollReveal },
+    { name: 'StatsCounter', fn: initStatsCounter },
+    { name: 'TestimonialsSlider', fn: initTestimonialsSlider },
+    { name: 'FaqAccordion', fn: initFaqAccordion },
+    { name: 'MouseParallax', fn: initMouseParallax },
+    { name: 'Particles', fn: initParticles },
+    { name: 'SplitTextAnimation', fn: initSplitTextAnimation },
+    { name: 'WhyChooseLoop', fn: initWhyChooseLoop },
+    { name: 'ScrollStack', fn: initScrollStack },
+    { name: 'HeroScrollAnimation', fn: initHeroScrollAnimation },
+    { name: 'CakeCustomizer', fn: initCakeCustomizer },
+    { name: 'ActivityToasts', fn: initActivityToasts }
+  ];
+
+  initializers.forEach(item => {
+    try {
+      if (typeof item.fn === 'function') {
+        item.fn();
+      } else {
+        console.warn(`Initializer for ${item.name} is not a function.`);
+      }
+    } catch (err) {
+      console.error(`Failed to initialize ${item.name}:`, err);
+    }
+  });
 });
 
 // 1. PRELOADER SCREEN & LOGO ANIMATION
@@ -1293,12 +1311,48 @@ window.updateCustomizer = updateCustomizer;
 window.handleCustomizerSubmit = handleCustomizerSubmit;
 
 // 19. ADMIN LOGIN & CATALOG MANAGEMENT SYSTEM
+// Safe storage wrapper to prevent SecurityErrors in iframes or sandboxed environments
+const safeStorage = {
+  _local: {},
+  _session: {},
+  getItem(key, isSession = false) {
+    try {
+      const storage = isSession ? window.sessionStorage : window.localStorage;
+      return storage.getItem(key);
+    } catch (e) {
+      console.warn(`Storage read blocked for key "${key}". Using in-memory fallback.`, e);
+      const fallback = isSession ? this._session : this._local;
+      return fallback[key] !== undefined ? fallback[key] : null;
+    }
+  },
+  setItem(key, value, isSession = false) {
+    try {
+      const storage = isSession ? window.sessionStorage : window.localStorage;
+      storage.setItem(key, value);
+    } catch (e) {
+      console.warn(`Storage write blocked for key "${key}". Using in-memory fallback.`, e);
+      const fallback = isSession ? this._session : this._local;
+      fallback[key] = String(value);
+    }
+  },
+  removeItem(key, isSession = false) {
+    try {
+      const storage = isSession ? window.sessionStorage : window.localStorage;
+      storage.removeItem(key);
+    } catch (e) {
+      console.warn(`Storage remove blocked for key "${key}". Using in-memory fallback.`, e);
+      const fallback = isSession ? this._session : this._local;
+      delete fallback[key];
+    }
+  }
+};
+
 let tempImageBase64 = '';
 let editProductIndex = -1;
 
 function initAdminSystem() {
   const catalogKey = 'theheavencakes_catalog';
-  let catalog = localStorage.getItem(catalogKey);
+  let catalog = safeStorage.getItem(catalogKey);
 
   // Parse public storefront cards on first load if localStorage is empty
   if (!catalog) {
@@ -1331,7 +1385,7 @@ function initAdminSystem() {
       });
 
       if (initialItems.length > 0) {
-        localStorage.setItem(catalogKey, JSON.stringify(initialItems));
+        safeStorage.setItem(catalogKey, JSON.stringify(initialItems));
       }
     } catch (err) {
       console.error("Error seeding storefront catalog cards:", err);
@@ -1340,7 +1394,7 @@ function initAdminSystem() {
         { name: "Heavenly Red Velvet", category: "Premium Exotic", price: "1100", desc: "Indulgent layers of classic red velvet sponge, infused with authentic cream cheese frosting.", img: "images/prod_red_velvet.jpg" },
         { name: "Lotus Biscoff Cheesecake", category: "Cheese Cakes", price: "1100", desc: "Silky smooth New York style cheesecake topped with premium Lotus Biscoff spread and cookie crumbs.", img: "images/cat_photo.jpg" }
       ];
-      localStorage.setItem(catalogKey, JSON.stringify(fallbackItems));
+      safeStorage.setItem(catalogKey, JSON.stringify(fallbackItems));
     }
   }
 
@@ -1349,7 +1403,7 @@ function initAdminSystem() {
 
 function renderCatalog() {
   const catalogKey = 'theheavencakes_catalog';
-  const catalogJson = localStorage.getItem(catalogKey);
+  const catalogJson = safeStorage.getItem(catalogKey);
   if (!catalogJson) return;
 
   try {
@@ -1432,7 +1486,7 @@ function renderCatalog() {
     }
   } catch (err) {
     console.error("Failed to parse catalog from localStorage:", err);
-    localStorage.removeItem(catalogKey);
+    safeStorage.removeItem(catalogKey);
     location.reload();
   }
 }
@@ -1446,7 +1500,7 @@ function openAdminModal() {
   document.getElementById('admin-password').value = '';
   document.getElementById('login-error-msg').style.display = 'none';
 
-  const isLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true';
+  const isLoggedIn = safeStorage.getItem('admin_logged_in', true) === 'true';
   const loginView = document.getElementById('admin-login-view');
   const dashView = document.getElementById('admin-dashboard-view');
   const title = document.getElementById('admin-title');
@@ -1480,7 +1534,7 @@ function handleAdminLogin(event) {
   const errorMsg = document.getElementById('login-error-msg');
 
   if (user === 'theheavencakes' && pass === 'sukeshheaven') {
-    sessionStorage.setItem('admin_logged_in', 'true');
+    safeStorage.setItem('admin_logged_in', 'true', true);
     errorMsg.style.display = 'none';
     
     document.getElementById('admin-login-view').style.display = 'none';
@@ -1492,7 +1546,7 @@ function handleAdminLogin(event) {
 }
 
 function handleAdminLogout() {
-  sessionStorage.removeItem('admin_logged_in');
+  safeStorage.removeItem('admin_logged_in', true);
   document.getElementById('admin-login-view').style.display = 'block';
   document.getElementById('admin-dashboard-view').style.display = 'none';
   document.getElementById('admin-title').textContent = 'Admin Login';
@@ -1566,7 +1620,7 @@ function handleAdminAddProduct(event) {
   }
 
   const catalogKey = 'theheavencakes_catalog';
-  const catalogJson = localStorage.getItem(catalogKey);
+  const catalogJson = safeStorage.getItem(catalogKey);
   const catalog = catalogJson ? JSON.parse(catalogJson) : [];
 
   if (editProductIndex > -1) {
@@ -1577,7 +1631,7 @@ function handleAdminAddProduct(event) {
       desc,
       img: tempImageBase64
     };
-    localStorage.setItem(catalogKey, JSON.stringify(catalog));
+    safeStorage.setItem(catalogKey, JSON.stringify(catalog));
     cancelProductEdit();
     alert('Product successfully updated!');
   } else {
@@ -1588,7 +1642,7 @@ function handleAdminAddProduct(event) {
       desc,
       img: tempImageBase64
     });
-    localStorage.setItem(catalogKey, JSON.stringify(catalog));
+    safeStorage.setItem(catalogKey, JSON.stringify(catalog));
     
     document.getElementById('admin-add-product-form').reset();
     document.getElementById('upload-filename').textContent = 'Click to upload image file';
@@ -1604,13 +1658,13 @@ function handleDeleteProduct(index) {
   if (!confirm('Are you sure you want to delete this product from the menu catalog?')) return;
 
   const catalogKey = 'theheavencakes_catalog';
-  const catalogJson = localStorage.getItem(catalogKey);
+  const catalogJson = safeStorage.getItem(catalogKey);
   if (!catalogJson) return;
 
   const catalog = JSON.parse(catalogJson);
   catalog.splice(index, 1);
 
-  localStorage.setItem(catalogKey, JSON.stringify(catalog));
+  safeStorage.setItem(catalogKey, JSON.stringify(catalog));
   renderCatalog();
 }
 
@@ -1626,7 +1680,7 @@ window.initAdminSystem = initAdminSystem;
 
 function handleEditProduct(index) {
   const catalogKey = 'theheavencakes_catalog';
-  const catalogJson = localStorage.getItem(catalogKey);
+  const catalogJson = safeStorage.getItem(catalogKey);
   if (!catalogJson) return;
 
   const catalog = JSON.parse(catalogJson);

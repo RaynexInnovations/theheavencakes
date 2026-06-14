@@ -53,11 +53,15 @@
           <li><a href="#customizer" class="nav-link">Design Cake</a></li>
           <li><a href="#contact" class="nav-link">Contact</a></li>
           <!-- Mobile CTA inclusion -->
+          <li class="mobile-only" style="margin-top: 10px;"><a href="#" onclick="openAdminModal(); return false;" class="nav-link" style="color: var(--gold);"><i data-lucide="lock" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 6px;"></i>Admin Portal</a></li>
           <li class="mobile-only"><a href="#featured" class="btn btn-primary nav-btn-order" style="margin-top: 20px; display: inline-flex;">Order Online</a></li>
         </ul>
       </nav>
 
       <div class="nav-actions">
+        <button onclick="openAdminModal(); return false;" class="btn btn-secondary" aria-label="Open Admin Portal" style="padding: 10px 18px;" title="Admin Portal">
+          <i data-lucide="lock" style="width: 18px; height: 18px;"></i>
+        </button>
         <a href="tel:+919644553363" class="btn btn-secondary" aria-label="Call The Heaven Cake" style="padding: 10px 18px;">
           <i data-lucide="phone" style="width: 18px; height: 18px;"></i>
         </a>
