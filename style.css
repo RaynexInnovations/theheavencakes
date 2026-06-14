@@ -2652,3 +2652,821 @@ footer {
     height: 260px;
   }
 }
+
+/* ==========================================================================
+   17. INTERACTIVE CAKE CUSTOMIZER
+   ========================================================================== */
+.customizer {
+  padding: 100px 0;
+  background-color: var(--bg-cream);
+  position: relative;
+  overflow: hidden;
+}
+
+.customizer-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1.3fr;
+  gap: 50px;
+  align-items: start;
+  margin-top: 40px;
+}
+
+/* 3D Cake Preview Card styling */
+.customizer-preview-col {
+  position: sticky;
+  top: 100px;
+}
+
+.preview-card-wrapper {
+  background: var(--white);
+  border: 1px solid rgba(201, 162, 39, 0.15);
+  border-radius: 28px;
+  padding: 40px;
+  box-shadow: var(--shadow-lg), 0 20px 40px rgba(45, 45, 45, 0.03);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.preview-card-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, var(--peach), var(--gold), var(--pink));
+}
+
+.preview-badge {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: var(--bg-cream);
+  color: var(--gold);
+  border: 1px solid rgba(201, 162, 39, 0.25);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 30px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Canvas styling */
+.cake-canvas {
+  width: 100%;
+  height: 360px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding-bottom: 20px;
+  position: relative;
+  background: radial-gradient(circle at center, rgba(255, 253, 249, 0.8) 0%, rgba(248, 244, 238, 0.4) 100%);
+  border-radius: 20px;
+  border: 1px dashed rgba(201, 162, 39, 0.1);
+  margin-top: 20px;
+}
+
+.cake-visual-assembly {
+  position: relative;
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+  transform: translateY(-10px);
+}
+
+/* Stand styles */
+.cake-stand {
+  position: relative;
+  width: 280px;
+  height: 25px;
+  margin-top: -5px;
+  z-index: 1;
+}
+
+.stand-plate {
+  width: 100%;
+  height: 12px;
+  background: linear-gradient(to bottom, #e8e4db, #ccc7ba);
+  border-radius: 50% / 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08), inset 0 2px 2px #fff;
+  position: relative;
+  border: 1px solid #c8c3b5;
+}
+
+.stand-plate::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 2%;
+  right: 2%;
+  height: 8px;
+  background: #fdfcf9;
+  border-radius: 50% / 6px;
+  opacity: 0.8;
+}
+
+.stand-pillar {
+  width: 40px;
+  height: 25px;
+  background: linear-gradient(to right, #ccc7ba, #e8e4db 40%, #ccc7ba);
+  margin: -4px auto 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border-left: 1px solid #bfbaa8;
+  border-right: 1px solid #bfbaa8;
+}
+
+.stand-base {
+  width: 140px;
+  height: 10px;
+  background: linear-gradient(to bottom, #ccc7ba, #b0aaa0);
+  border-radius: 50% / 5px;
+  margin: -5px auto 0;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #b2aca0;
+}
+
+/* 3D Cake Tiers styling */
+.cake-tier {
+  position: relative;
+  width: 200px;
+  height: 0;
+  opacity: 0;
+  transform: scale(0.7);
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.4s ease;
+  transform-origin: bottom center;
+  z-index: 5;
+  margin-bottom: -15px;
+}
+
+.cake-tier.active {
+  opacity: 1;
+  transform: scale(1);
+  height: 70px;
+  margin-bottom: -18px;
+}
+
+/* Dimensions of tiers */
+.cake-tier.tier-1 {
+  width: 220px;
+  z-index: 5;
+}
+.cake-tier.tier-2 {
+  width: 170px;
+  z-index: 6;
+}
+.cake-tier.tier-3 {
+  width: 120px;
+  z-index: 7;
+}
+
+.cake-tier .tier-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 30px;
+  border-radius: 50%;
+  z-index: 2;
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.5);
+  transition: background 0.4s ease;
+}
+
+.cake-tier .tier-side {
+  position: absolute;
+  top: 15px;
+  left: 0;
+  width: 100%;
+  height: 55px;
+  border-radius: 0 0 50% 50% / 0 0 30px 30px;
+  z-index: 1;
+  box-shadow: inset 0 -4px 10px rgba(0,0,0,0.15), 0 5px 10px rgba(0,0,0,0.1);
+  transition: background 0.4s ease;
+  overflow: hidden;
+}
+
+/* Cream Piping dots overlay */
+.piping-dots {
+  position: absolute;
+  bottom: 8px;
+  left: 5%;
+  width: 90%;
+  height: 8px;
+  background-image: radial-gradient(circle, #fffdf8 3px, transparent 4px);
+  background-size: 10px 10px;
+  background-repeat: repeat-x;
+  opacity: 0.85;
+  z-index: 3;
+}
+
+/* Frosting drip effect overlay */
+.frosting-drips {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 18px;
+  background-size: 20px 20px;
+  background-repeat: repeat-x;
+  opacity: 0.9;
+  z-index: 2;
+  transition: background 0.4s ease;
+}
+
+/* Flavors Styles: Gradients & Colors */
+/* Chocolate */
+.flavor-chocolate .tier-top {
+  background: #5A3825;
+}
+.flavor-chocolate .tier-side {
+  background: linear-gradient(to right, #402415 0%, #5C3823 40%, #704732 70%, #402415 100%);
+}
+.flavor-chocolate .frosting-drips {
+  background-image: radial-gradient(circle, #3D2214 8px, transparent 9px);
+  background-position: 0 -4px;
+}
+/* Red Velvet */
+.flavor-velvet .tier-top {
+  background: #A81829;
+}
+.flavor-velvet .tier-side {
+  background: linear-gradient(to right, #7A0A17 0%, #A81829 40%, #BF2437 70%, #7A0A17 100%);
+}
+.flavor-velvet .frosting-drips {
+  background-image: radial-gradient(circle, #fff9f5 6px, transparent 7px);
+  background-position: 0 -3px;
+}
+/* Butterscotch */
+.flavor-butterscotch .tier-top {
+  background: #E5A93B;
+}
+.flavor-butterscotch .tier-side {
+  background: linear-gradient(to right, #AF7414 0%, #E5A93B 40%, #F3C468 70%, #AF7414 100%);
+}
+.flavor-butterscotch .frosting-drips {
+  background-image: radial-gradient(circle, #6C3D0E 6px, transparent 7px);
+  background-position: 0 -3px;
+}
+/* Vanilla */
+.flavor-vanilla .tier-top {
+  background: #F8F1E5;
+}
+.flavor-vanilla .tier-side {
+  background: linear-gradient(to right, #D8CCA6 0%, #F5ECDF 40%, #FFF9F2 70%, #D8CCA6 100%);
+}
+.flavor-vanilla .frosting-drips {
+  background-image: radial-gradient(circle, #C9A227 6px, transparent 7px);
+  background-position: 0 -3px;
+}
+/* Strawberry */
+.flavor-strawberry .tier-top {
+  background: #E88E99;
+}
+.flavor-strawberry .tier-side {
+  background: linear-gradient(to right, #B25863 0%, #E88E99 40%, #F7B2BC 70%, #B25863 100%);
+}
+.flavor-strawberry .frosting-drips {
+  background-image: radial-gradient(circle, #fff9f5 6px, transparent 7px);
+  background-position: 0 -3px;
+}
+/* Mango */
+.flavor-mango .tier-top {
+  background: #F4B81C;
+}
+.flavor-mango .tier-side {
+  background: linear-gradient(to right, #BD8506 0%, #F4B81C 40%, #FAD160 70%, #BD8506 100%);
+}
+.flavor-mango .frosting-drips {
+  background-image: radial-gradient(circle, #FFF 6px, transparent 7px);
+  background-position: 0 -3px;
+}
+
+/* Weight scales for tiers (1kg is normal, larger weights scale width) */
+.weight-1 .cake-visual-assembly { transform: translateY(-10px) scale(0.9); }
+.weight-1_5 .cake-visual-assembly { transform: translateY(-10px) scale(1); }
+.weight-2 .cake-visual-assembly { transform: translateY(-10px) scale(1.08); }
+.weight-3 .cake-visual-assembly { transform: translateY(-10px) scale(1.15); }
+.weight-5 .cake-visual-assembly { transform: translateY(-10px) scale(1.22); }
+
+/* Decoration elements absolute overlaid */
+.toppings-decorations-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.topping-element {
+  position: absolute;
+  animation: floatDecoration 4s ease-in-out infinite alternate;
+  font-size: 1.3rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+}
+
+@keyframes floatDecoration {
+  0% { transform: translateY(0px) rotate(0deg); }
+  100% { transform: translateY(-6px) rotate(8deg); }
+}
+
+/* Stat bubbles at preview bottom */
+.preview-stats {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  margin-top: 30px;
+  gap: 15px;
+}
+
+.stat-bubble {
+  flex: 1;
+  background: var(--bg-cream);
+  border: 1px solid rgba(201, 162, 39, 0.1);
+  padding: 12px;
+  border-radius: 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-title {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-family: var(--font-headings);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* Form Controls Column styling */
+.customizer-form-card {
+  background: var(--white);
+  border: 1px solid rgba(229, 229, 229, 0.6);
+  border-radius: 28px;
+  padding: 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+}
+
+.customizer-group {
+  margin-bottom: 25px;
+}
+
+.customizer-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 12px;
+  letter-spacing: 0.3px;
+}
+
+.customizer-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.customizer-row-split {
+  display: flex;
+  gap: 20px;
+}
+
+.half-width {
+  flex: 1;
+}
+
+/* Custom dropdown and text field overrides */
+.customizer-form-card select,
+.customizer-form-card input[type="text"],
+.customizer-form-card input[type="tel"],
+.customizer-form-card textarea {
+  width: 100%;
+  padding: 14px 20px;
+  border: 1px solid #E2E2E2;
+  border-radius: 14px;
+  background-color: var(--bg-cream);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  transition: all var(--transition-fast);
+}
+
+.customizer-form-card select:focus,
+.customizer-form-card input[type="text"]:focus,
+.customizer-form-card input[type="tel"]:focus,
+.customizer-form-card textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+  background-color: var(--white);
+  box-shadow: 0 0 0 4px rgba(201, 162, 39, 0.1);
+}
+
+/* Custom Interactive Option Pills (Radio and Checkbox styling) */
+.option-pill {
+  position: relative;
+  background: var(--white);
+  border: 1px solid #E2E2E2;
+  border-radius: 16px;
+  padding: 14px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.option-pill input[type="radio"],
+.option-pill input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.option-pill:hover {
+  border-color: rgba(201, 162, 39, 0.5);
+  background-color: var(--bg-cream);
+}
+
+.option-pill.active,
+.option-pill input[type="checkbox"]:checked + .pill-title,
+.option-pill:has(input[type="checkbox"]:checked) {
+  border-color: var(--gold);
+  background-color: rgba(201, 162, 39, 0.05);
+  box-shadow: 0 4px 12px rgba(201, 162, 39, 0.08);
+}
+
+/* Base flavor dot color indicator */
+.color-indicator {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.color-chocolate { background-color: #5A3825; }
+.color-velvet { background-color: #A81829; }
+.color-butterscotch { background-color: #E5A93B; }
+.color-vanilla { background-color: #F8F1E5; }
+.color-strawberry { background-color: #E88E99; }
+.color-mango { background-color: #F4B81C; }
+
+/* Grid systems for options */
+.flavor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  width: 100%;
+}
+
+.tier-select-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  width: 100%;
+}
+
+.toppings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  width: 100%;
+}
+
+.tier-pill {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 16px;
+}
+
+.tier-pill .pill-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-main);
+}
+
+.tier-pill .pill-desc {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.tier-pill .pill-price {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--gold);
+  margin-top: 6px;
+}
+
+.pill-title {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.pill-price {
+  margin-left: auto;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+/* Form Submit and Price Board Styles */
+.price-summary-card {
+  background: var(--bg-cream);
+  border: 1px solid rgba(201, 162, 39, 0.12);
+  border-radius: 20px;
+  padding: 25px;
+  margin-top: 35px;
+}
+
+.summary-title {
+  font-family: var(--font-headings);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 15px;
+}
+
+.summary-breakdown {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.summary-breakdown li {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.summary-divider {
+  height: 1px;
+  background-color: rgba(201, 162, 39, 0.15);
+  margin: 15px 0 !important;
+}
+
+.summary-breakdown li.summary-total {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0;
+  align-items: center;
+}
+
+.total-val {
+  font-size: 1.5rem;
+  color: var(--gold);
+  font-family: var(--font-headings);
+}
+
+.customizer-submit-btn {
+  width: 100%;
+  margin-top: 20px;
+  background-color: #25D366;
+  border-color: #25D366;
+  color: var(--white);
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 14px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.2);
+}
+
+.customizer-submit-btn:hover {
+  background-color: #128C7E;
+  border-color: #128C7E;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(18, 140, 126, 0.3);
+}
+
+.customizer-disclaimer {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 12px;
+  line-height: 1.4;
+}
+
+
+/* ==========================================================================
+   18. LIVE ACTIVITY TOAST NOTIFICATION SYSTEM
+   ========================================================================== */
+.toast-container {
+  position: fixed;
+  bottom: 30px;
+  left: 30px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.activity-toast {
+  background: rgba(255, 253, 249, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(201, 162, 39, 0.25);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(201, 162, 39, 0.05);
+  border-radius: 20px;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  max-width: 380px;
+  transform: translateX(-120%);
+  opacity: 0;
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: auto;
+}
+
+.activity-toast.active {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.toast-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg-cream);
+  border: 1.5px solid var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+.toast-content {
+  flex-grow: 1;
+}
+
+.toast-message {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--text-main);
+  margin-bottom: 2px;
+  line-height: 1.4;
+}
+
+.toast-message strong {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.toast-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.toast-time {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.toast-action {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gold);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.toast-action:hover {
+  text-decoration: underline;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+  align-self: flex-start;
+  margin-top: -4px;
+  margin-right: -10px;
+}
+
+.toast-close:hover {
+  opacity: 1;
+}
+
+/* Responsive Customizer Adjustments */
+@media screen and (max-width: 1024px) {
+  .customizer-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  
+  .customizer-preview-col {
+    position: relative;
+    top: 0;
+  }
+  
+  .preview-card-wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .customizer {
+    padding: 60px 0;
+  }
+  
+  .customizer-form-card,
+  .preview-card-wrapper {
+    padding: 25px 20px;
+    border-radius: 20px;
+  }
+  
+  .flavor-grid,
+  .toppings-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .tier-select-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .customizer-row-split {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .cake-visual-assembly {
+    width: 220px;
+  }
+  
+  .cake-stand {
+    width: 240px;
+  }
+  
+  .cake-tier.tier-1 { width: 190px; }
+  .cake-tier.tier-2 { width: 150px; }
+  .cake-tier.tier-3 { width: 110px; }
+  
+  .preview-stats {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .stat-bubble {
+    flex: 1 1 45%;
+  }
+  
+  .toast-container {
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+  }
+  
+  .activity-toast {
+    max-width: 100%;
+    transform: translateY(150%);
+  }
+  
+  .activity-toast.active {
+    transform: translateY(0);
+  }
+}
+

@@ -22,6 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initWhyChooseLoop();
   initScrollStack();
   initHeroScrollAnimation();
+  initCakeCustomizer();
+  initActivityToasts();
 });
 
 // 1. PRELOADER SCREEN & LOGO ANIMATION
@@ -944,3 +946,347 @@ function initHeroScrollAnimation() {
     });
   }
 }
+
+// 17. INTERACTIVE CAKE CUSTOMIZER & PRICE CALCULATIONS
+function initCakeCustomizer() {
+  const form = document.getElementById('cake-customizer-form');
+  if (!form) return;
+
+  // Initialize the values on page load
+  updateCustomizer();
+
+  // Attach change listeners to text/message inputs too
+  const messageInput = document.getElementById('custom-message');
+  const instructionsInput = document.getElementById('custom-instructions');
+  
+  if (messageInput) messageInput.addEventListener('input', updateCustomizer);
+  if (instructionsInput) instructionsInput.addEventListener('input', updateCustomizer);
+}
+
+function updateToppingsVisuals(topTierElement) {
+  if (!topTierElement) return;
+  const topFace = topTierElement.querySelector('.tier-top');
+  if (!topFace) return;
+
+  // Clear existing topping spans inside the top face
+  const existingToppings = topFace.querySelectorAll('.topping-element');
+  existingToppings.forEach(el => el.remove());
+
+  const checkedToppings = document.querySelectorAll('.topping-pill input[type="checkbox"]:checked');
+  
+  checkedToppings.forEach(checkbox => {
+    const toppingVal = checkbox.value;
+    let icon = '';
+    let count = 0;
+    
+    if (toppingVal.includes('Gold')) {
+      icon = '✨';
+      count = 8;
+    } else if (toppingVal.includes('Strawberry')) {
+      icon = '🍓';
+      count = 4;
+    } else if (toppingVal.includes('Macarons')) {
+      icon = '🌸';
+      count = 4;
+    } else if (toppingVal.includes('Chocolate')) {
+      icon = '🍫';
+      count = 9;
+    }
+    
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement('span');
+      el.className = 'topping-element';
+      el.textContent = icon;
+      
+      // Random coordinates distributed on the oval top face
+      const angle = Math.random() * Math.PI * 2;
+      const radiusX = 15 + Math.random() * 25; // Percentage offset
+      const radiusY = 10 + Math.random() * 15;
+      
+      const left = 50 + Math.cos(angle) * radiusX;
+      const topPos = 40 + Math.sin(angle) * radiusY;
+      
+      el.style.left = `${left}%`;
+      el.style.top = `${topPos}%`;
+      el.style.animationDelay = `${Math.random() * 2.5}s`;
+      el.style.transform = `translate(-50%, -50%) rotate(${Math.random() * 360}deg) scale(${0.75 + Math.random() * 0.45})`;
+      
+      topFace.appendChild(el);
+    }
+  });
+}
+
+function updateCustomizer() {
+  const form = document.getElementById('cake-customizer-form');
+  if (!form) return;
+
+  // 1. Read input values
+  const selectedFlavorEl = form.querySelector('input[name="flavor"]:checked');
+  const flavor = selectedFlavorEl ? selectedFlavorEl.value : 'Belgian Chocolate Truffle';
+  const flavorType = selectedFlavorEl ? selectedFlavorEl.parentElement.getAttribute('data-flavor') : 'chocolate';
+  
+  const selectedTiersEl = form.querySelector('input[name="tiers"]:checked');
+  const tiers = selectedTiersEl ? parseInt(selectedTiersEl.value) : 1;
+  
+  const weight = parseFloat(document.getElementById('custom-weight').value || 1);
+  const preference = document.getElementById('custom-preference').value;
+  
+  // Update visual state for flavor pills
+  const flavorPills = document.querySelectorAll('.flavor-pill');
+  flavorPills.forEach(pill => {
+    pill.classList.remove('active');
+    if (pill.querySelector('input').checked) {
+      pill.classList.add('active');
+    }
+  });
+
+  // Update visual state for tier pills
+  const tierPills = document.querySelectorAll('.tier-pill');
+  tierPills.forEach(pill => {
+    pill.classList.remove('active');
+    if (pill.querySelector('input').checked) {
+      pill.classList.add('active');
+    }
+  });
+
+  // 2. Run calculations
+  let baseRate = 800; // default Chocolate
+  if (flavor.includes('Velvet')) baseRate = 750;
+  else if (flavor.includes('Butterscotch')) baseRate = 650;
+  else if (flavor.includes('Vanilla')) baseRate = 600;
+  else if (flavor.includes('Strawberry')) baseRate = 650;
+  else if (flavor.includes('Mango')) baseRate = 700;
+
+  const baseCost = baseRate * weight;
+  const tierCost = tiers === 2 ? 500 : (tiers === 3 ? 1000 : 0);
+  const prefCost = preference === 'Eggless' ? 100 * weight : 0;
+  
+  let toppingsCost = 0;
+  const checkedToppings = form.querySelectorAll('input[name="toppings"]:checked');
+  checkedToppings.forEach(checkbox => {
+    toppingsCost += parseInt(checkbox.getAttribute('data-price') || 0);
+  });
+
+  const totalCost = baseCost + tierCost + prefCost + toppingsCost;
+
+  // 3. Update Text and Price elements
+  const summaryFlavor = document.getElementById('summary-flavor-name');
+  if (summaryFlavor) summaryFlavor.textContent = flavor;
+
+  const basePriceEl = document.getElementById('summary-base-price');
+  if (basePriceEl) basePriceEl.textContent = `₹${baseCost}`;
+
+  const tierPriceEl = document.getElementById('summary-tier-price');
+  if (tierPriceEl) tierPriceEl.textContent = `₹${tierCost}`;
+
+  const prefPriceEl = document.getElementById('summary-pref-price');
+  if (prefPriceEl) prefPriceEl.textContent = `₹${prefCost}`;
+
+  const toppingsPriceEl = document.getElementById('summary-toppings-price');
+  if (toppingsPriceEl) toppingsPriceEl.textContent = `₹${toppingsCost}`;
+
+  const totalEl = document.getElementById('customizer-total-price');
+  if (totalEl) totalEl.textContent = `₹${totalCost}`;
+
+  // 4. Handle stacked 3D cylinder active states
+  const tier1 = document.getElementById('preview-tier-1');
+  const tier2 = document.getElementById('preview-tier-2');
+  const tier3 = document.getElementById('preview-tier-3');
+
+  const tiersList = [tier1, tier2, tier3];
+  tiersList.forEach(t => {
+    if (!t) return;
+    // Strip flavor classes
+    t.className = 'cake-tier';
+  });
+
+  if (tier1) {
+    tier1.classList.add('active', 'tier-1', `flavor-${flavorType}`);
+  }
+  
+  if (tier2) {
+    if (tiers >= 2) {
+      tier2.classList.add('active', 'tier-2', `flavor-${flavorType}`);
+    } else {
+      tier2.classList.add('tier-2');
+    }
+  }
+  
+  if (tier3) {
+    if (tiers === 3) {
+      tier3.classList.add('active', 'tier-3', `flavor-${flavorType}`);
+    } else {
+      tier3.classList.add('tier-3');
+    }
+  }
+
+  // 5. Weight scale formatting
+  const assembly = document.getElementById('cake-visual-assembly');
+  if (assembly) {
+    assembly.className = 'cake-visual-assembly';
+    if (weight === 1) assembly.classList.add('weight-1');
+    else if (weight === 1.5) assembly.classList.add('weight-1_5');
+    else if (weight === 2) assembly.classList.add('weight-2');
+    else if (weight === 3) assembly.classList.add('weight-3');
+    else if (weight === 5) assembly.classList.add('weight-5');
+  }
+
+  // 6. Update Stats bubbles text
+  const statWeight = document.getElementById('preview-stat-weight');
+  if (statWeight) statWeight.textContent = `${weight} kg`;
+  
+  const statServings = document.getElementById('preview-stat-servings');
+  if (statServings) {
+    let servesText = '8-10 Pax';
+    if (weight === 1.5) servesText = '12-15 Pax';
+    else if (weight === 2) servesText = '16-20 Pax';
+    else if (weight === 3) servesText = '24-30 Pax';
+    else if (weight === 5) servesText = '40-50 Pax';
+    statServings.textContent = servesText;
+  }
+
+  const statTiers = document.getElementById('preview-stat-tiers');
+  if (statTiers) statTiers.textContent = `${tiers} Tier${tiers > 1 ? 's' : ''}`;
+
+  // 7. Update Toppings visual position on top face of highest active tier
+  const activeTiers = document.querySelectorAll('.cake-tier.active');
+  if (activeTiers.length > 0) {
+    const topTier = activeTiers[activeTiers.length - 1];
+    updateToppingsVisuals(topTier);
+  }
+}
+
+function handleCustomizerSubmit(event) {
+  event.preventDefault();
+
+  const form = document.getElementById('cake-customizer-form');
+  if (!form) return;
+
+  const flavor = form.querySelector('input[name="flavor"]:checked').value;
+  const tiers = form.querySelector('input[name="tiers"]:checked').value;
+  const weight = document.getElementById('custom-weight').value;
+  const preference = document.getElementById('custom-preference').value;
+  
+  const toppingsList = [];
+  const checkedToppings = form.querySelectorAll('input[name="toppings"]:checked');
+  checkedToppings.forEach(cb => toppingsList.push(cb.value));
+  const toppingsStr = toppingsList.length > 0 ? toppingsList.join(', ') : 'None';
+  
+  const message = document.getElementById('custom-message').value || 'None';
+  const instructions = document.getElementById('custom-instructions').value || 'None';
+  const customerName = document.getElementById('custom-customer-name').value;
+  const customerPhone = document.getElementById('custom-customer-phone').value;
+  const totalPrice = document.getElementById('customizer-total-price').textContent;
+
+  const phone = '919644553363';
+  
+  const textMsg = `*The Heaven Cake - Custom Cake Order Request*%0A%0A` +
+                  `👤 *Customer Name:* ${customerName}%0A` +
+                  `📞 *Contact Phone:* ${customerPhone}%0A%0A` +
+                  `🍰 *Cake Specifications:*%0A` +
+                  `- *Base Flavor:* ${flavor}%0A` +
+                  `- *Tiers:* ${tiers} Tier(s)%0A` +
+                  `- *Weight:* ${weight} kg%0A` +
+                  `- *Dietary Pref:* ${preference}%0A` +
+                  `- *Luxury Toppings:* ${toppingsStr}%0A` +
+                  `- *Writing on Cake:* "${message}"%0A%0A` +
+                  `📝 *Instructions:* ${instructions}%0A%0A` +
+                  `💰 *Estimated Price:* ${totalPrice}%0A%0A` +
+                  `Please confirm my custom order reservation. Thank you!`;
+
+  const whatsappUrl = `https://wa.me/${phone}?text=${textMsg}`;
+  window.open(whatsappUrl, '_blank');
+}
+
+// 18. LIVE ACTIVITY TOAST NOTIFICATION SYSTEM
+function initActivityToasts() {
+  const toastContainer = document.getElementById('live-activity-toast');
+  if (!toastContainer) return;
+
+  const names = ['Aysha', 'Fatima', 'Priya Nair', 'Deekshith', 'Muhammed', 'Anjali', 'Shruthi', 'Rahul', 'Zainaba', 'Karthik', 'Mariyam', 'Siddharth'];
+  const locations = ['Kumbla Town', 'Shiriya', 'Mogral', 'Uppala', 'Kasaragod', 'Badiadka', 'Kanwatheera', 'Naikapu', 'Kumble Bridge', 'Koipady'];
+  const cakes = [
+    { name: 'Heavenly Red Velvet Cake', price: '₹699' },
+    { name: 'Belgian Chocolate Truffle', price: '₹799' },
+    { name: 'Classic Black Forest Cake', price: '₹599' },
+    { name: 'Premium Butterscotch Cake', price: '₹649' },
+    { name: 'Bespoke 2-Tier Wedding Cake', price: '₹2200' },
+    { name: 'Gourmet Cupcakes Box', price: '₹350' },
+    { name: 'Mango Royale Pastry', price: '₹120' }
+  ];
+  
+  const times = ['just now', '2 mins ago', '5 mins ago', '10 mins ago', '15 mins ago'];
+
+  function showRandomToast() {
+    if (toastContainer.querySelector('.activity-toast')) return;
+
+    const randomName = names[Math.floor(Math.random() * names.length)];
+    const randomLoc = locations[Math.floor(Math.random() * locations.length)];
+    const randomCake = cakes[Math.floor(Math.random() * cakes.length)];
+    const randomTime = times[Math.floor(Math.random() * times.length)];
+
+    const toast = document.createElement('div');
+    toast.className = 'activity-toast';
+    
+    toast.innerHTML = `
+      <div class="toast-avatar">
+        <i data-lucide="shopping-bag" style="width: 20px; height: 20px;"></i>
+      </div>
+      <div class="toast-content">
+        <p class="toast-message"><strong>${randomName}</strong> from ${randomLoc} ordered <strong>${randomCake.name}</strong> (${randomCake.price})</p>
+        <div class="toast-meta">
+          <span class="toast-time">${randomTime}</span>
+          <a href="#featured" class="toast-action">View Menu <i data-lucide="chevron-right" style="width: 12px; height: 12px; display: inline;"></i></a>
+        </div>
+      </div>
+      <button class="toast-close" aria-label="Close Notification">
+        <i data-lucide="x" style="width: 14px; height: 14px;"></i>
+      </button>
+    `;
+
+    toastContainer.appendChild(toast);
+    
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons({
+        attrs: {
+          class: 'lucide'
+        },
+        nameAttr: 'data-lucide',
+        node: toast
+      });
+    }
+
+    setTimeout(() => {
+      toast.classList.add('active');
+    }, 100);
+
+    const closeBtn = toast.querySelector('.toast-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        toast.classList.remove('active');
+        setTimeout(() => {
+          toast.remove();
+        }, 500);
+      });
+    }
+
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.classList.remove('active');
+        setTimeout(() => {
+          toast.remove();
+        }, 500);
+      }
+    }, 6000);
+  }
+
+  // Trigger first toast after 8 seconds
+  setTimeout(showRandomToast, 8000);
+
+  // Set interval to check and show every 22 seconds
+  setInterval(showRandomToast, 22000);
+}
+
+// Bind handlers to window for inline calls
+window.updateCustomizer = updateCustomizer;
+window.handleCustomizerSubmit = handleCustomizerSubmit;

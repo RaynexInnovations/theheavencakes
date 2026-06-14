@@ -50,6 +50,7 @@
           <li><a href="#featured" class="nav-link">Cakes</a></li>
           <li><a href="#gallery" class="nav-link">Gallery</a></li>
           <li><a href="#reviews" class="nav-link">Reviews</a></li>
+          <li><a href="#customizer" class="nav-link">Design Cake</a></li>
           <li><a href="#contact" class="nav-link">Contact</a></li>
           <!-- Mobile CTA inclusion -->
           <li class="mobile-only"><a href="#featured" class="btn btn-primary nav-btn-order" style="margin-top: 20px; display: inline-flex;">Order Online</a></li>
@@ -765,6 +766,264 @@
     </div>
   </section>
 
+  <!-- Interactive Cake Customizer Section -->
+  <section class="customizer" id="customizer">
+    <div class="container">
+      <div class="section-header reveal reveal-up">
+        <span class="section-tag">Bespoke Masterpieces</span>
+        <h2 class="section-title">Interactive Cake Customizer</h2>
+        <p class="section-desc">Design your celebration's showstopper in real-time. Select flavors, configure size tiers, choose luxury toppings, and get an instant cost calculation with immediate WhatsApp checkout.</p>
+      </div>
+
+      <div class="customizer-grid">
+        <!-- 3D CSS Preview Column -->
+        <div class="customizer-preview-col reveal reveal-left">
+          <div class="preview-card-wrapper">
+            <div class="preview-badge">Live 3D-Like Preview</div>
+            <div class="cake-canvas">
+              <!-- Interactive CSS Cake -->
+              <div class="cake-visual-assembly" id="cake-visual-assembly">
+                <!-- Stacked Tiers (top-to-bottom order) -->
+                <!-- Tier 3 (Top) -->
+                <div class="cake-tier tier-3" id="preview-tier-3">
+                  <div class="tier-top"></div>
+                  <div class="tier-side">
+                    <div class="frosting-drips"></div>
+                    <div class="piping-dots"></div>
+                  </div>
+                </div>
+                <!-- Tier 2 (Middle) -->
+                <div class="cake-tier tier-2" id="preview-tier-2">
+                  <div class="tier-top"></div>
+                  <div class="tier-side">
+                    <div class="frosting-drips"></div>
+                    <div class="piping-dots"></div>
+                  </div>
+                </div>
+                <!-- Tier 1 (Bottom) -->
+                <div class="cake-tier tier-1 active" id="preview-tier-1">
+                  <div class="tier-top"></div>
+                  <div class="tier-side">
+                    <div class="frosting-drips"></div>
+                    <div class="piping-dots"></div>
+                  </div>
+                </div>
+                <!-- Cake Stand -->
+                <div class="cake-stand">
+                  <div class="stand-plate"></div>
+                  <div class="stand-pillar"></div>
+                  <div class="stand-base"></div>
+                </div>
+              </div>
+              
+              <!-- Toppings overlay container -->
+              <div class="toppings-decorations-container" id="toppings-decorations">
+                <!-- Will be dynamically loaded with decoration elements -->
+              </div>
+            </div>
+            
+            <div class="preview-stats">
+              <div class="stat-bubble">
+                <span class="stat-title">Est. Weight</span>
+                <span class="stat-value" id="preview-stat-weight">1.0 kg</span>
+              </div>
+              <div class="stat-bubble">
+                <span class="stat-title">Serves</span>
+                <span class="stat-value" id="preview-stat-servings">8-10 Pax</span>
+              </div>
+              <div class="stat-bubble">
+                <span class="stat-title">Layers</span>
+                <span class="stat-value" id="preview-stat-tiers">1 Tier</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customizer Controls Form Column -->
+        <div class="customizer-form-col reveal reveal-right">
+          <div class="customizer-form-card">
+            <form id="cake-customizer-form" onsubmit="handleCustomizerSubmit(event)">
+              
+              <!-- 1. Flavor selector -->
+              <div class="customizer-group">
+                <label class="customizer-label">1. Choose Signature Base Flavor</label>
+                <div class="customizer-options flavor-grid">
+                  <label class="option-pill flavor-pill active" data-flavor="chocolate">
+                    <input type="radio" name="flavor" value="Belgian Chocolate Truffle" checked onchange="updateCustomizer()">
+                    <span class="color-indicator color-chocolate"></span>
+                    <span class="pill-title">Chocolate Truffle</span>
+                    <span class="pill-price">₹800/kg</span>
+                  </label>
+                  <label class="option-pill flavor-pill" data-flavor="velvet">
+                    <input type="radio" name="flavor" value="Heavenly Red Velvet" onchange="updateCustomizer()">
+                    <span class="color-indicator color-velvet"></span>
+                    <span class="pill-title">Red Velvet</span>
+                    <span class="pill-price">₹750/kg</span>
+                  </label>
+                  <label class="option-pill flavor-pill" data-flavor="butterscotch">
+                    <input type="radio" name="flavor" value="Premium Butterscotch" onchange="updateCustomizer()">
+                    <span class="color-indicator color-butterscotch"></span>
+                    <span class="pill-title">Butterscotch</span>
+                    <span class="pill-price">₹650/kg</span>
+                  </label>
+                  <label class="option-pill flavor-pill" data-flavor="vanilla">
+                    <input type="radio" name="flavor" value="Classic Vanilla & Cream" onchange="updateCustomizer()">
+                    <span class="color-indicator color-vanilla"></span>
+                    <span class="pill-title">Vanilla Cream</span>
+                    <span class="pill-price">₹600/kg</span>
+                  </label>
+                  <label class="option-pill flavor-pill" data-flavor="strawberry">
+                    <input type="radio" name="flavor" value="Luscious Strawberry" onchange="updateCustomizer()">
+                    <span class="color-indicator color-strawberry"></span>
+                    <span class="pill-title">Strawberry</span>
+                    <span class="pill-price">₹650/kg</span>
+                  </label>
+                  <label class="option-pill flavor-pill" data-flavor="mango">
+                    <input type="radio" name="flavor" value="Exotic Mango Royale" onchange="updateCustomizer()">
+                    <span class="color-indicator color-mango"></span>
+                    <span class="pill-title">Mango Royale</span>
+                    <span class="pill-price">₹700/kg</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 2. Tiers selector -->
+              <div class="customizer-group">
+                <label class="customizer-label">2. Select Number of Tiers</label>
+                <div class="customizer-options tier-select-grid">
+                  <label class="option-pill tier-pill active" data-tiers="1">
+                    <input type="radio" name="tiers" value="1" checked onchange="updateCustomizer()">
+                    <span class="pill-title">1 Tier</span>
+                    <span class="pill-desc">Standard Celebration</span>
+                    <span class="pill-price">+₹0</span>
+                  </label>
+                  <label class="option-pill tier-pill" data-tiers="2">
+                    <input type="radio" name="tiers" value="2" onchange="updateCustomizer()">
+                    <span class="pill-title">2 Tiers</span>
+                    <span class="pill-desc">Grand Gathering</span>
+                    <span class="pill-price">+₹500</span>
+                  </label>
+                  <label class="option-pill tier-pill" data-tiers="3">
+                    <input type="radio" name="tiers" value="3" onchange="updateCustomizer()">
+                    <span class="pill-title">3 Tiers</span>
+                    <span class="pill-desc">Royal Extravaganza</span>
+                    <span class="pill-price">+₹1000</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 3. Weight and Eggless Group -->
+              <div class="customizer-row-split">
+                <div class="customizer-group half-width">
+                  <label class="customizer-label" for="custom-weight">3. Cake Weight</label>
+                  <select id="custom-weight" name="weight" onchange="updateCustomizer()">
+                    <option value="1">1.0 kg (Standard)</option>
+                    <option value="1.5">1.5 kg</option>
+                    <option value="2">2.0 kg</option>
+                    <option value="3">3.0 kg</option>
+                    <option value="5">5.0 kg</option>
+                  </select>
+                </div>
+                <div class="customizer-group half-width">
+                  <label class="customizer-label" for="custom-preference">4. Dietary Preference</label>
+                  <select id="custom-preference" name="preference" onchange="updateCustomizer()">
+                    <option value="Regular">Regular (Contains Egg)</option>
+                    <option value="Eggless">100% Vegetarian (Eggless) (+₹100/kg)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- 4. Luxury Toppings (Checkboxes) -->
+              <div class="customizer-group">
+                <label class="customizer-label">5. Add Luxury Toppings & Accents</label>
+                <div class="customizer-options toppings-grid">
+                  <label class="option-pill topping-pill">
+                    <input type="checkbox" name="toppings" value="Gold Foil & Sparkles" data-price="150" onchange="updateCustomizer()">
+                    <span class="pill-title">Gold Foil & Sparkles</span>
+                    <span class="pill-price">+₹150</span>
+                  </label>
+                  <label class="option-pill topping-pill">
+                    <input type="checkbox" name="toppings" value="Fresh Strawberry Halves" data-price="200" onchange="updateCustomizer()">
+                    <span class="pill-title">Fresh Strawberries</span>
+                    <span class="pill-price">+₹200</span>
+                  </label>
+                  <label class="option-pill topping-pill">
+                    <input type="checkbox" name="toppings" value="French Macarons Decor" data-price="250" onchange="updateCustomizer()">
+                    <span class="pill-title">Macarons Decor</span>
+                    <span class="pill-price">+₹250</span>
+                  </label>
+                  <label class="option-pill topping-pill">
+                    <input type="checkbox" name="toppings" value="Gourmet Chocolate Shavings" data-price="100" onchange="updateCustomizer()">
+                    <span class="pill-title">Chocolate Shavings</span>
+                    <span class="pill-price">+₹100</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 5. Text & Special Instructions -->
+              <div class="customizer-group">
+                <label class="customizer-label" for="custom-message">6. Custom Text on Cake</label>
+                <input type="text" id="custom-message" name="message" placeholder="E.g., Happy 30th Birthday Rahul!">
+              </div>
+
+              <div class="customizer-group">
+                <label class="customizer-label" for="custom-instructions">7. Baking & Delivery Instructions</label>
+                <textarea id="custom-instructions" name="instructions" rows="2" placeholder="E.g., Low sweetness, delivery requested by 4 PM at Mogral."></textarea>
+              </div>
+
+              <!-- Customer details for WhatsApp Ticket -->
+              <div class="customizer-row-split">
+                <div class="customizer-group half-width">
+                  <label class="customizer-label" for="custom-customer-name">Your Name *</label>
+                  <input type="text" id="custom-customer-name" name="customerName" placeholder="E.g., Aysha" required>
+                </div>
+                <div class="customizer-group half-width">
+                  <label class="customizer-label" for="custom-customer-phone">Contact Number *</label>
+                  <input type="tel" id="custom-customer-phone" name="customerPhone" placeholder="E.g., 9876543210" required>
+                </div>
+              </div>
+
+              <!-- Pricing summary card -->
+              <div class="price-summary-card">
+                <h4 class="summary-title">Order Price Details</h4>
+                <ul class="summary-breakdown">
+                  <li>
+                    <span class="summary-item-label">Base Cost (<span id="summary-flavor-name">Chocolate Truffle</span>)</span>
+                    <span class="summary-item-val" id="summary-base-price">₹800</span>
+                  </li>
+                  <li>
+                    <span class="summary-item-label">Tier Add-on</span>
+                    <span class="summary-item-val" id="summary-tier-price">₹0</span>
+                  </li>
+                  <li>
+                    <span class="summary-item-label">Dietary Option Surcharge</span>
+                    <span class="summary-item-val" id="summary-pref-price">₹0</span>
+                  </li>
+                  <li>
+                    <span class="summary-item-label">Luxury Toppings</span>
+                    <span class="summary-item-val" id="summary-toppings-price">₹0</span>
+                  </li>
+                  <li class="summary-divider"></li>
+                  <li class="summary-total">
+                    <span class="total-label">Total Estimated Price</span>
+                    <span class="total-val" id="customizer-total-price">₹800</span>
+                  </li>
+                </ul>
+
+                <button type="submit" class="btn btn-primary customizer-submit-btn">
+                  <span>Send Custom Order to WhatsApp</span>
+                  <i data-lucide="send" class="btn-icon"></i>
+                </button>
+                <p class="customizer-disclaimer">Price is indicative. Customizations may affect final quotation. Deliveries limited to Kumbla and surrounding areas.</p>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Instagram Slider Gallery -->
   <section class="instagram">
     <div class="container">
@@ -1032,6 +1291,7 @@
             <li><a href="#featured">Our Cake Menu</a></li>
             <li><a href="#gallery">Sweet Photo Gallery</a></li>
             <li><a href="#reviews">Customer Testimonials</a></li>
+            <li><a href="#customizer">Bespoke Cake Customizer</a></li>
             <li><a href="#contact">Contact & Map Location</a></li>
           </ul>
         </div>
@@ -1149,6 +1409,9 @@
       </form>
     </div>
   </div>
+
+  <!-- Live Activity Toast Notification System -->
+  <div id="live-activity-toast" class="toast-container"></div>
 
   <!-- GSAP Core and ScrollTrigger CDNs -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
