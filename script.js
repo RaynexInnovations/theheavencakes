@@ -1683,58 +1683,55 @@ const safeStorage = {
 
 let tempImageBase64 = '';
 let editProductIndex = -1;
-let isFirebaseEnabled = false;
-let dbRef = null;
+let isSupabaseEnabled = false;
+let supabaseClient = null;
 
-function checkFirebaseConfig() {
-  if (typeof firebaseConfig !== 'undefined' && 
-      firebaseConfig.apiKey && 
-      firebaseConfig.apiKey !== "YOUR_API_KEY" && 
-      firebaseConfig.databaseURL && 
-      firebaseConfig.databaseURL !== "YOUR_DATABASE_URL") {
+function checkSupabaseConfig() {
+  if (typeof supabaseConfig !== 'undefined' && 
+      supabaseConfig.url && 
+      supabaseConfig.url !== "YOUR_SUPABASE_URL" && 
+      supabaseConfig.anonKey && 
+      supabaseConfig.anonKey !== "YOUR_SUPABASE_ANON_KEY") {
     return true;
   }
   return false;
 }
 
-function initializeFirebaseApp() {
-  if (checkFirebaseConfig()) {
+function initializeSupabaseApp() {
+  if (checkSupabaseConfig()) {
     try {
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-      }
-      dbRef = firebase.database().ref('catalog');
-      isFirebaseEnabled = true;
-      console.log("Firebase Realtime Database initialized successfully.");
+      supabaseClient = supabase.createClient(supabaseConfig.url, supabaseConfig.anonKey);
+      isSupabaseEnabled = true;
+      console.log("Supabase Client initialized successfully.");
 
       // Set up auth state listener
-      firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-          console.log("Firebase Admin Authenticated:", user.email);
+      supabaseClient.auth.onAuthStateChange((event, session) => {
+        if (session) {
+          console.log("Supabase Admin Authenticated:", session.user.email);
           safeStorage.setItem('admin_logged_in', 'true', true);
         }
       });
     } catch (error) {
-      console.error("Firebase initialization failed:", error);
-      isFirebaseEnabled = false;
+      console.error("Supabase initialization failed:", error);
+      isSupabaseEnabled = false;
     }
   } else {
-    console.log("Firebase is not configured. Falling back to Local Storage mode.");
-    isFirebaseEnabled = false;
+    console.log("Supabase is not configured. Falling back to Local Storage mode.");
+    isSupabaseEnabled = false;
   }
 }
 
-function updateFirebaseStatusUI() {
-  const statusBadge = document.getElementById('firebase-status-badge');
-  const statusDot = document.getElementById('firebase-status-dot');
-  const statusText = document.getElementById('firebase-status-text');
+function updateDatabaseStatusUI() {
+  const statusBadge = document.getElementById('db-status-badge');
+  const statusDot = document.getElementById('db-status-dot');
+  const statusText = document.getElementById('db-status-text');
   if (!statusBadge || !statusDot || !statusText) return;
 
-  if (isFirebaseEnabled) {
+  if (isSupabaseEnabled) {
     statusBadge.style.color = '#81c784'; // Soft light green
     statusDot.style.backgroundColor = '#4caf50'; // Vibrant green
     statusDot.style.boxShadow = '0 0 8px #4caf50';
-    statusText.textContent = 'Database: Cloud Connected (Firebase)';
+    statusText.textContent = 'Database: Cloud Connected (Supabase)';
   } else {
     statusBadge.style.color = '#ffb74d'; // Soft orange
     statusDot.style.backgroundColor = '#ff9800'; // Vibrant orange
@@ -1743,9 +1740,54 @@ function updateFirebaseStatusUI() {
   }
 }
 
+async function refreshCatalogFromSupabase(catalogKey, initialItems) {
+  try {
+    const { data, error } = await supabaseClient
+      .from('catalog')
+      .select('*')
+      .order('id', { ascending: true });
+    
+    if (error) throw error;
+
+    if (data && data.length > 0) {
+      safeStorage.setItem(catalogKey, JSON.stringify(data));
+      renderCatalog();
+    } else {
+      console.log("Supabase catalog table is empty. Seeding defaults...");
+      const itemsToInsert = initialItems.map(item => ({
+        name: item.name,
+        category: item.category,
+        price: item.price,
+        desc: item.desc,
+        img: item.img
+      }));
+      const { error: seedError } = await supabaseClient.from('catalog').insert(itemsToInsert);
+      if (seedError) throw seedError;
+      
+      // Fetch seeded data to get IDs
+      const { data: seededData, error: fetchError } = await supabaseClient
+        .from('catalog')
+        .select('*')
+        .order('id', { ascending: true });
+      if (fetchError) throw fetchError;
+      
+      safeStorage.setItem(catalogKey, JSON.stringify(seededData));
+      renderCatalog();
+    }
+  } catch (err) {
+    console.error("Failed to load catalog from Supabase:", err);
+    // Fallback load from local storage
+    let catalogVal = safeStorage.getItem(catalogKey);
+    if (!catalogVal) {
+      safeStorage.setItem(catalogKey, JSON.stringify(initialItems));
+    }
+    renderCatalog();
+  }
+}
+
 function initAdminSystem() {
-  initializeFirebaseApp();
-  updateFirebaseStatusUI();
+  initializeSupabaseApp();
+  updateDatabaseStatusUI();
 
   const catalogKey = 'theheavencakes_catalog_v4';
   
@@ -1867,27 +1909,17 @@ function initAdminSystem() {
       { name: "3D Customised Cake (Full Fondant)", category: "Custom Cakes", price: "1500", desc: "Stunning fully customized 3D fondant masterpieces made to order.", img: "images/cat_photo.jpg" }
     ];
 
-    if (isFirebaseEnabled) {
-      // Set up real-time listener to sync catalog changes immediately to everyone
-      dbRef.on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (data && Array.isArray(data)) {
-          safeStorage.setItem(catalogKey, JSON.stringify(data));
-          renderCatalog();
-        } else {
-          // If database path is empty, seed it with the default list
-          console.log("Database path /catalog is empty. Seeding defaults...");
-          dbRef.set(initialItems);
-        }
-      }, (error) => {
-        console.error("Firebase Database read failed:", error);
-        // Fallback load from local storage
-        let catalogVal = safeStorage.getItem(catalogKey);
-        if (!catalogVal) {
-          safeStorage.setItem(catalogKey, JSON.stringify(initialItems));
-        }
-        renderCatalog();
-      });
+    if (isSupabaseEnabled) {
+      // Initial fetch
+      refreshCatalogFromSupabase(catalogKey, initialItems);
+
+      // Subscribe to real-time changes
+      supabaseClient
+        .channel('public:catalog')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'catalog' }, () => {
+          refreshCatalogFromSupabase(catalogKey, initialItems);
+        })
+        .subscribe();
     } else {
       let catalogVal = safeStorage.getItem(catalogKey);
       if (!catalogVal) {
@@ -2069,24 +2101,24 @@ function handleAdminLogin(event) {
   const pass = document.getElementById('admin-password').value.trim();
   const errorMsg = document.getElementById('login-error-msg');
 
-  if (isFirebaseEnabled) {
-    // Firebase Auth Path
-    // Map username 'theheavencakes' to the registered Firebase Auth admin email
+  if (isSupabaseEnabled) {
+    // Supabase Auth Path
     const email = user === 'theheavencakes' ? 'admin@theheavencakes.com' : (user.includes('@') ? user : `${user}@theheavencakes.com`);
     
-    firebase.auth().signInWithEmailAndPassword(email, pass)
-      .then(() => {
+    supabaseClient.auth.signInWithPassword({ email, password: pass })
+      .then(({ data, error }) => {
+        if (error) throw error;
+
         safeStorage.setItem('admin_logged_in', 'true', true);
         errorMsg.style.display = 'none';
         
         document.getElementById('admin-login-view').style.display = 'none';
         document.getElementById('admin-dashboard-view').style.display = 'block';
         document.getElementById('admin-title').textContent = 'Admin Control Panel';
-        // Reload dashboard catalog list
         renderCatalog();
       })
       .catch((error) => {
-        console.error("Firebase Auth sign-in failed:", error);
+        console.error("Supabase Auth sign-in failed:", error);
         errorMsg.textContent = "Sign-in failed: " + error.message;
         errorMsg.style.display = 'block';
       });
@@ -2109,8 +2141,8 @@ function handleAdminLogin(event) {
 
 function handleAdminLogout() {
   safeStorage.removeItem('admin_logged_in', true);
-  if (isFirebaseEnabled) {
-    firebase.auth().signOut().catch(err => console.error("Firebase sign-out failed:", err));
+  if (isSupabaseEnabled) {
+    supabaseClient.auth.signOut().catch(err => console.error("Supabase sign-out failed:", err));
   }
   document.getElementById('admin-login-view').style.display = 'block';
   document.getElementById('admin-dashboard-view').style.display = 'none';
@@ -2215,15 +2247,40 @@ function handleAdminAddProduct(event) {
     catalog.push(updatedItem);
   }
 
-  if (isFirebaseEnabled) {
-    dbRef.set(catalog)
-      .then(() => {
-        handleSuccess(editProductIndex > -1 ? 'Product successfully updated in Cloud Database!' : 'Product successfully added to Cloud Database!');
-      })
-      .catch((err) => {
-        console.error("Firebase Database set failed:", err);
-        alert("Failed to sync changes to Cloud Database: " + err.message);
-      });
+  if (isSupabaseEnabled) {
+    if (editProductIndex > -1) {
+      // Update existing item
+      const originalItem = catalog[editProductIndex];
+      if (originalItem && originalItem.id) {
+        supabaseClient
+          .from('catalog')
+          .update(updatedItem)
+          .eq('id', originalItem.id)
+          .then(({ error }) => {
+            if (error) throw error;
+            handleSuccess('Product successfully updated in Cloud Database!');
+          })
+          .catch((err) => {
+            console.error("Supabase update failed:", err);
+            alert("Failed to sync changes to Cloud Database: " + err.message);
+          });
+      } else {
+        alert("Error: Product does not have a valid Database ID.");
+      }
+    } else {
+      // Add new item
+      supabaseClient
+        .from('catalog')
+        .insert([updatedItem])
+        .then(({ error }) => {
+          if (error) throw error;
+          handleSuccess('Product successfully added to Cloud Database!');
+        })
+        .catch((err) => {
+          console.error("Supabase insert failed:", err);
+          alert("Failed to sync changes to Cloud Database: " + err.message);
+        });
+    }
   } else {
     safeStorage.setItem(catalogKey, JSON.stringify(catalog));
     handleSuccess(editProductIndex > -1 ? 'Product successfully updated!' : 'Product successfully added to the active menu catalog!');
@@ -2238,19 +2295,28 @@ function handleDeleteProduct(index) {
   if (!catalogJson) return;
 
   const catalog = JSON.parse(catalogJson);
-  catalog.splice(index, 1);
+  const itemToDelete = catalog[index];
 
-  if (isFirebaseEnabled) {
-    dbRef.set(catalog)
-      .then(() => {
-        alert('Product successfully deleted from Cloud Database!');
-        renderCatalog();
-      })
-      .catch((err) => {
-        console.error("Firebase Database delete failed:", err);
-        alert("Failed to sync deletion to Cloud Database: " + err.message);
-      });
+  if (isSupabaseEnabled) {
+    if (itemToDelete && itemToDelete.id) {
+      supabaseClient
+        .from('catalog')
+        .delete()
+        .eq('id', itemToDelete.id)
+        .then(({ error }) => {
+          if (error) throw error;
+          alert('Product successfully deleted from Cloud Database!');
+          renderCatalog();
+        })
+        .catch((err) => {
+          console.error("Supabase delete failed:", err);
+          alert("Failed to sync deletion to Cloud Database: " + err.message);
+        });
+    } else {
+      alert("Error: Product does not have a valid Database ID.");
+    }
   } else {
+    catalog.splice(index, 1);
     safeStorage.setItem(catalogKey, JSON.stringify(catalog));
     renderCatalog();
   }

@@ -1574,9 +1574,9 @@
             <div class="list-side-header" style="align-items: flex-start;">
               <div style="display: flex; flex-direction: column; gap: 4px;">
                 <h4 style="margin: 0; font-size: 1.1rem; font-family: 'Playfair Display', serif; color: var(--gold);">Active Catalog Manager</h4>
-                <div id="firebase-status-badge" style="font-size: 0.75rem; color: #ffb74d; display: flex; align-items: center; gap: 6px; font-weight: 500;">
-                  <span id="firebase-status-dot" style="width: 8px; height: 8px; border-radius: 50%; background-color: #ffb74d; display: inline-block; box-shadow: 0 0 8px #ffb74d;"></span>
-                  <span id="firebase-status-text">Database: Local Storage Mode</span>
+                <div id="db-status-badge" style="font-size: 0.75rem; color: #ffb74d; display: flex; align-items: center; gap: 6px; font-weight: 500;">
+                  <span id="db-status-dot" style="width: 8px; height: 8px; border-radius: 50%; background-color: #ffb74d; display: inline-block; box-shadow: 0 0 8px #ffb74d;"></span>
+                  <span id="db-status-text">Database: Local Storage Mode</span>
                 </div>
               </div>
               <button type="button" class="btn btn-secondary" onclick="handleAdminLogout()" style="padding: 6px 12px; font-size: 0.8rem; height: auto;">Logout</button>
@@ -1607,12 +1607,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <!-- Lucide Icons Script -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Firebase SDKs Compat -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-  <!-- Firebase Config -->
-  <script src="firebase-config.js"></script>
+  <!-- Supabase JS Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Supabase Config -->
+  <script src="supabase-config.js"></script>
   <!-- Core Script File -->
   <script src="script.js?v=2.2"></script>
 </body>
