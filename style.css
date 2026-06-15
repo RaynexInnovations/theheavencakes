@@ -326,9 +326,6 @@ header:not(.sticky) .nav-action-btn:hover {
   color: var(--gold);
 }
 
-header:not(.sticky) .nav-logo-img {
-  filter: brightness(0) invert(1) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.15));
-}
 
 header:not(.sticky) .mobile-nav-toggle span {
   background-color: var(--white);
