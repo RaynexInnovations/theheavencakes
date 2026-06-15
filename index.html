@@ -18,7 +18,7 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎂</text></svg>">
 
   <!-- Core Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=2.2">
+  <link rel="stylesheet" href="style.css?v=3.0">
 </head>
 <body>
 
@@ -80,26 +80,59 @@
     <div class="container">
       <div class="hero-grid">
         <div class="hero-content reveal reveal-left">
-          <div class="hero-badge">
-            <span></span> Crafted Fresh Every Day in Kumbla
+          <div class="hero-brand-badge">
+            <span class="hero-monogram">✦ H ✦</span>
+            <span class="hero-eyebrow">THE ART OF HAUTE PATISSERIE</span>
           </div>
-          <h1 class="hero-title">Every Celebration Begins with <span class="title-highlight">Heaven</span></h1>
-          <p class="hero-desc">Freshly baked cakes crafted with love and the finest premium ingredients for birthdays, weddings, anniversaries, and all your special occasions.</p>
+          <h1 class="hero-title" id="hero-title">Every Celebration Begins With <span class="title-highlight">Heaven</span></h1>
+          <p class="hero-desc" id="hero-desc">Artisanal cakes meticulously designed and baked daily using premium natural ingredients. Elevating your special occasions with absolute culinary elegance.</p>
+          
+          <!-- Boutique Mood Selector -->
+          <div class="hero-mood-selector">
+            <button class="mood-tab active" data-mood="classic">Royal Classic</button>
+            <button class="mood-tab" data-mood="decadence">Dark Decadence</button>
+            <button class="mood-tab" data-mood="harvest">Fresh Harvest</button>
+          </div>
+
           <div class="hero-cta">
             <a href="#featured" class="btn btn-primary">
               Explore Cakes <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
             </a>
             <a href="#contact" class="btn btn-secondary">Order Custom Cake</a>
           </div>
+          <div class="hero-coordinates">
+            <span>12.5794° N, 74.9405° E</span>
+            <span class="coordinate-bullet">✦</span>
+            <span>KUMBLA, KERALA</span>
+          </div>
         </div>
 
-        <div class="hero-image-container reveal reveal-right delay-2">
-          <div class="hero-arch-back"></div>
-          <div class="hero-arch-frame">
-            <div class="hero-arch-inner">
-              <img src="images/hero_cake.jpg" alt="Exquisite Premium White Celebration Cake from The Heaven Cake" class="hero-main-img">
+        <div class="hero-canvas reveal reveal-right delay-2">
+          <!-- Main Canvas Frame -->
+          <div class="hero-canvas-frame">
+            <div class="hero-canvas-inner">
+              <img src="images/hero_cake.jpg" alt="Exquisite Premium Celebration Cake" class="hero-canvas-img" id="hero-img-main">
+            </div>
+            
+            <!-- Floating Tasting Notes Placard -->
+            <div class="tasting-placard">
+              <div class="placard-header">01 / FEATURED COMPOSITION</div>
+              <div class="placard-title" id="tasting-composition">Madagascar Vanilla Bean & Fresh Cream</div>
+              <div class="placard-divider"></div>
+              <div class="placard-details">
+                <div class="placard-item">
+                  <span class="placard-label">PROFILE:</span>
+                  <span class="placard-val" id="tasting-profile">Delicate, Silky, Creamy</span>
+                </div>
+                <div class="placard-item">
+                  <span class="placard-label">SPECS:</span>
+                  <span class="placard-val" id="tasting-specs">1.5 kg • Serves 12-15 Pax</span>
+                </div>
+              </div>
             </div>
           </div>
+
+          <!-- Artisan Rotating Seal (Floating Accent) -->
           <div class="hero-artisan-seal" aria-hidden="true">
             <svg viewBox="0 0 100 100">
               <path id="sealCirclePath" d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" fill="none" />
@@ -118,53 +151,79 @@
   <section class="about" id="about">
     <div class="container">
       <div class="about-grid">
-        <div class="scroll-stack-scroller about-scroll-stack reveal reveal-left" id="about-scroll-stack">
-          <div class="scroll-stack-indicator">
-            <i data-lucide="chevrons-up-down" style="width: 16px; height: 16px;"></i> Scroll or swipe to stack
-          </div>
-          <div class="scroll-stack-inner">
-            <div class="scroll-stack-card about-img-wrapper about-img-1">
-              <img src="images/about_crafting.jpg" alt="Beautiful custom cake crafting">
-              <div class="card-caption">Artisan Crafting</div>
+        <div class="about-visual reveal reveal-left">
+          <div class="about-triptych">
+            <!-- Triptych Image 1 -->
+            <div class="triptych-frame frame-1 active" data-triptych-tab="standard">
+              <div class="triptych-inner">
+                <img src="images/about_ingredients.jpg" alt="Premium baking ingredients close-up" class="triptych-img">
+              </div>
+              <div class="triptych-caption">01 / INGREDIENT</div>
             </div>
-            <div class="scroll-stack-card about-img-wrapper about-img-2">
-              <img src="images/about_ingredients.jpg" alt="Fresh bakery kitchen baking ingredients">
-              <div class="card-caption">Premium Ingredients</div>
+
+            <!-- Triptych Image 2 -->
+            <div class="triptych-frame frame-2" data-triptych-tab="story">
+              <div class="triptych-inner">
+                <img src="images/about_crafting.jpg" alt="Artisan cake crafting details" class="triptych-img">
+              </div>
+              <div class="triptych-caption">02 / TECHNIQUE</div>
             </div>
-            <div class="scroll-stack-card about-img-wrapper about-img-3">
-              <img src="images/about_display.jpg" alt="Delicious croissants and cupcakes display">
-              <div class="card-caption">Freshly Displayed</div>
+
+            <!-- Triptych Image 3 -->
+            <div class="triptych-frame frame-3" data-triptych-tab="promise">
+              <div class="triptych-inner">
+                <img src="images/about_display.jpg" alt="Freshly displayed pastry display" class="triptych-img">
+              </div>
+              <div class="triptych-caption">03 / CREATION</div>
             </div>
-            <div class="scroll-stack-end"></div>
           </div>
         </div>
 
         <div class="about-content reveal reveal-right delay-2">
           <span class="about-subtitle">Our Sweet Philosophy</span>
-          <h2 class="about-title">Handmade with Love, Baked to Perfection</h2>
-          <p class="about-text">At The Heaven Cake, we believe every cake has a story to tell. Established in Kumbla, Kerala, we have dedicated ourselves to creating premium, luxurious desserts that bring sweet smiles to your life's most precious celebrations.</p>
-          <p class="about-text">From grand multi-tiered wedding cakes to intimate birthday cupcakes, everything is crafted using only premium-sourced ingredients, baked fresh daily with artisan passion.</p>
+          <h2 class="about-title">Handcrafted Luxury, Baked for Your Memories</h2>
           
-          <ul class="about-points">
-            <li class="about-point">
-              <i data-lucide="check" class="about-point-icon"></i>
-              Freshly baked every single day
-            </li>
-            <li class="about-point">
-              <i data-lucide="check" class="about-point-icon"></i>
-              100% premium quality organic ingredients
-            </li>
-            <li class="about-point">
-              <i data-lucide="check" class="about-point-icon"></i>
-              Tailored custom cake creations
-            </li>
-            <li class="about-point">
-              <i data-lucide="check" class="about-point-icon"></i>
-              Handcrafted decorations by artisan bakers
-            </li>
-          </ul>
+          <!-- Interactive Tab Nav -->
+          <div class="about-tabs-nav">
+            <button class="about-tab-btn active" data-tab="story" onclick="switchAboutTab('story')">Our Story</button>
+            <button class="about-tab-btn" data-tab="standard" onclick="switchAboutTab('standard')">Our Standards</button>
+            <button class="about-tab-btn" data-tab="promise" onclick="switchAboutTab('promise')">Our Promise</button>
+          </div>
+          
+          <!-- Tab Contents -->
+          <div class="about-tab-content-wrapper">
+            <div id="about-tab-story" class="about-tab-content active">
+              <p class="about-text">At The Heaven Cake, we believe every cake has a story to tell. Established in Kumbla, Kerala, we have dedicated ourselves to creating premium, luxurious desserts that bring sweet smiles to your life's most precious celebrations.</p>
+              <p class="about-text">From grand multi-tiered wedding cakes to intimate birthday cupcakes, everything is crafted using only premium-sourced ingredients, baked fresh daily with artisan passion.</p>
+              <ul class="about-points">
+                <li class="about-point"><i data-lucide="check" class="about-point-icon"></i> Freshly baked every single day</li>
+                <li class="about-point"><i data-lucide="check" class="about-point-icon"></i> Tailored custom cake creations</li>
+              </ul>
+            </div>
+            
+            <div id="about-tab-standard" class="about-tab-content">
+              <p class="about-text">We believe in pure, uncompromising quality. All of our batters, creams, and toppings are prepared fresh in our kitchen. We source organic flour, fresh farm dairy, and premium Belgian chocolate to craft a rich and decadent crumb.</p>
+              <p class="about-text">Good news for all dessert lovers: <strong>All our products are 100% Vegetarian (Eggless)</strong> by default. We do not use eggs, gelatin, or artificial animal fats.</p>
+              <ul class="about-points">
+                <li class="about-point"><i data-lucide="check" class="about-point-icon"></i> 100% premium quality organic ingredients</li>
+                <li class="about-point"><i data-lucide="check" class="about-point-icon"></i> 100% Eggless (Vegetarian) kitchen</li>
+              </ul>
+            </div>
+            
+            <div id="about-tab-promise" class="about-tab-content">
+              <p class="about-text">Every celebration deserves a showstopper. We collaborate closely with you to design a bespoke cake that matches your theme, colors, and flavor profile. From elegant semi-fondants to grand multi-tiered structures, your dream is our recipe.</p>
+              <p class="about-text">We ensure safe temperature-controlled shipping across Kumbla and Kasaragod areas, making sure your cake arrives in pristine, gallery-worthy condition.</p>
+              <ul class="about-points">
+                <li class="about-point"><i data-lucide="check" class="about-point-icon"></i> Handcrafted decorations by artisan bakers</li>
+                <li class="about-point"><i data-lucide="check" class="about-point-icon"></i> Safe temperature-controlled doorstep delivery</li>
+              </ul>
+            </div>
+          </div>
 
-          <a href="#contact" class="btn btn-primary">Connect with Our Baker</a>
+          <a href="#contact" class="btn btn-primary" style="margin-top: 20px;">
+            <i data-lucide="message-square" style="width: 18px; height: 18px; display: inline-block; vertical-align: middle; margin-right: 6px;"></i>
+            Connect with Our Baker
+          </a>
         </div>
       </div>
     </div>
@@ -1012,9 +1071,14 @@
               <h4>Boutique Bakery Address</h4>
               <p>Muliyadka Complex, Police Station Road,<br>Next to Kumbla Co-operative Bank,<br>Kumbla (Kumble), Kasaragod District, Kerala, India - 671321</p>
               
+              <div class="contact-ctas" style="margin-top: 10px; margin-bottom: 15px; display: flex; gap: 10px; align-items: center;">
+                <span style="font-size: 0.85rem; color: var(--text-muted);">Plus Code: <strong>HWVV+RH Kumbla, Kerala</strong></span>
+                <a href="https://www.google.com/maps/search/?api=1&query=HWVV%2BRH%20Kumbla,%20Kerala" target="_blank" rel="noopener" class="btn btn-secondary btn-text" style="font-size: 0.8rem; padding: 4px 10px;">Get Directions</a>
+              </div>
+              
               <!-- Google Map Embedded -->
               <div class="map-container">
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15582.493976867086!2d74.93510528659178!3d12.590212353164998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba359489eb170d1%3A0xe546949392e22c95!2sKumbla%2C%20Kerala!5e0!3m2!1sen!2sin!4v1718300000000!5m2!1sen!2sin" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="The Heaven Cake Google Map Direction"></iframe>
+                <iframe src="https://maps.google.com/maps?q=HWVV%2BRH%20Kumbla,%20Kerala&z=17&output=embed" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="The Heaven Cake Google Map Direction"></iframe>
               </div>
             </div>
 
@@ -1400,6 +1464,6 @@
   <!-- Supabase Config -->
   <script src="supabase-config.js"></script>
   <!-- Core Script File -->
-  <script src="script.js?v=2.2"></script>
+  <script src="script.js?v=3.0"></script>
 </body>
 </html>

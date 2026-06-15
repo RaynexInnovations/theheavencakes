@@ -26,11 +26,12 @@ document.addEventListener('DOMContentLoaded', () => {
     { name: 'Particles', fn: initParticles },
     { name: 'SplitTextAnimation', fn: initSplitTextAnimation },
     { name: 'WhyChooseLoop', fn: initWhyChooseLoop },
-    { name: 'ScrollStack', fn: initScrollStack },
     { name: 'HeroScrollAnimation', fn: initHeroScrollAnimation },
     { name: 'CakeCustomizer', fn: initCakeCustomizer },
     { name: 'ActivityToasts', fn: initActivityToasts },
-    { name: 'ModalPricingWeight', fn: initModalPricingWeightListener }
+    { name: 'ModalPricingWeight', fn: initModalPricingWeightListener },
+    { name: 'BoutiqueMoodSelector', fn: initBoutiqueMoodSelector },
+    { name: 'AboutTriptych', fn: initAboutTriptych }
   ];
 
   initializers.forEach(item => {
@@ -1126,131 +1127,62 @@ function initWhyChooseLoop() {
   rAF = requestAnimationFrame(animate);
 }
 
-// 15. DYNAMIC SCROLL STACK ANIMATION FOR ABOUT US SECTION
-function initScrollStack() {
-  const scroller = document.getElementById('about-scroll-stack');
-  const indicator = document.querySelector('.scroll-stack-indicator');
-  if (!scroller) return;
+// 15. INTERACTIVE TAB NAVIGATION FOR ABOUT US SECTION
+function switchAboutTab(tabId) {
+  const container = document.getElementById('about');
+  if (!container) return;
 
-  const cards = scroller.querySelectorAll('.scroll-stack-card');
-  const endElement = scroller.querySelector('.scroll-stack-end');
-  
-  const itemDistance = 100;
-  const itemScale = 0.03;
-  const itemStackDistance = 30;
-  const stackPosition = '20%';
-  const scaleEndPosition = '10%';
-  const baseScale = 0.85;
-  const rotationAmount = 2.5; // slight rotation for a premium look
-  const blurAmount = 2.5; // slight blur for stacking depth
-  const useWindowScroll = false;
+  const buttons = container.querySelectorAll('.about-tab-btn');
+  const contents = container.querySelectorAll('.about-tab-content');
+  const triptychFrames = container.querySelectorAll('.triptych-frame');
 
-  // Set initial styles
-  cards.forEach((card, i) => {
-    if (i < cards.length - 1) {
-      card.style.marginBottom = `${itemDistance}px`;
-    }
-    card.style.willChange = 'transform, filter';
-    card.style.transformOrigin = 'top center';
-    card.style.backfaceVisibility = 'hidden';
-    card.style.transform = 'translateZ(0)';
-  });
+  // Deactivate all buttons & contents & frames
+  buttons.forEach(btn => btn.classList.remove('active'));
+  contents.forEach(content => content.classList.remove('active'));
+  triptychFrames.forEach(frame => frame.classList.remove('active'));
 
-  const calculateProgress = (scrollTop, start, end) => {
-    if (scrollTop < start) return 0;
-    if (scrollTop > end) return 1;
-    return (scrollTop - start) / (end - start);
-  };
+  // Activate target button & content & frame
+  const targetBtn = Array.from(buttons).find(btn => btn.getAttribute('data-tab') === tabId);
+  const targetContent = document.getElementById(`about-tab-${tabId}`);
+  const targetFrame = Array.from(triptychFrames).find(frame => frame.getAttribute('data-triptych-tab') === tabId);
 
-  const parsePercentage = (value, containerHeight) => {
-    if (typeof value === 'string' && value.includes('%')) {
-      return (parseFloat(value) / 100) * containerHeight;
-    }
-    return parseFloat(value);
-  };
+  if (targetBtn && targetContent) {
+    targetBtn.classList.add('active');
+    targetContent.classList.add('active');
+    if (targetFrame) targetFrame.classList.add('active');
 
-  const getScrollData = () => {
-    return {
-      scrollTop: scroller.scrollTop,
-      containerHeight: scroller.clientHeight,
-      scrollContainer: scroller
-    };
-  };
-
-  const getElementOffset = (element) => {
-    return element.offsetTop;
-  };
-
-  const updateCardTransforms = () => {
-    if (window.innerWidth <= 768) return; // Bypass transitions on mobile screens
-    const { scrollTop, containerHeight } = getScrollData();
-    const stackPositionPx = parsePercentage(stackPosition, containerHeight);
-    const scaleEndPositionPx = parsePercentage(scaleEndPosition, containerHeight);
-    const endElementTop = endElement ? getElementOffset(endElement) : 0;
-
-    // Fade out indicator on scroll
-    if (indicator) {
-      if (scrollTop > 20) {
-        indicator.style.opacity = '0';
-        indicator.style.pointerEvents = 'none';
-      } else {
-        indicator.style.opacity = '1';
+    // Trigger Lucide SVG re-creation if needed for icons inside the newly active tab
+    try {
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
       }
+    } catch (err) {
+      console.warn("Lucide icons recreate failed in about tab:", err);
     }
+  }
+}
 
-    cards.forEach((card, i) => {
-      const cardTop = getElementOffset(card);
-      const triggerStart = cardTop - stackPositionPx - itemStackDistance * i;
-      const triggerEnd = cardTop - scaleEndPositionPx;
-      const pinStart = cardTop - stackPositionPx - itemStackDistance * i;
-      const pinEnd = endElementTop - containerHeight / 2;
+window.switchAboutTab = switchAboutTab;
 
-      const scaleProgress = calculateProgress(scrollTop, triggerStart, triggerEnd);
-      const targetScale = baseScale + i * itemScale;
-      const scale = 1 - scaleProgress * (1 - targetScale);
-      const rotation = rotationAmount ? i * rotationAmount * scaleProgress : 0;
+// 15b. ABOUT TRIPTYCH INTERACTIVE GALLERY CONTROL
+function initAboutTriptych() {
+  const container = document.getElementById('about');
+  if (!container) return;
 
-      // Calculate depth blur
-      let blur = 0;
-      if (blurAmount) {
-        let topCardIndex = 0;
-        for (let j = 0; j < cards.length; j++) {
-          const jCardTop = getElementOffset(cards[j]);
-          const jTriggerStart = jCardTop - stackPositionPx - itemStackDistance * j;
-          if (scrollTop >= jTriggerStart) {
-            topCardIndex = j;
-          }
-        }
-        if (i < topCardIndex) {
-          const depthInStack = topCardIndex - i;
-          blur = Math.max(0, depthInStack * blurAmount);
-        }
-      }
-
-      let translateY = 0;
-      const isPinned = scrollTop >= pinStart && scrollTop <= pinEnd;
-
-      if (isPinned) {
-        translateY = scrollTop - cardTop + stackPositionPx + itemStackDistance * i;
-      } else if (scrollTop > pinEnd) {
-        translateY = pinEnd - cardTop + stackPositionPx + itemStackDistance * i;
-      }
-
-      const transform = `translate3d(0, ${translateY}px, 0) scale(${scale}) rotate(${rotation}deg)`;
-      const filter = blur > 0 ? `blur(${blur}px)` : '';
-
-      card.style.transform = transform;
-      card.style.filter = filter;
+  const triptychFrames = container.querySelectorAll('.triptych-frame');
+  triptychFrames.forEach(frame => {
+    const tabId = frame.getAttribute('data-triptych-tab');
+    
+    // Switch tab on click
+    frame.addEventListener('click', () => {
+      switchAboutTab(tabId);
     });
-  };
 
-  scroller.addEventListener('scroll', updateCardTransforms);
-  
-  // Initial run
-  updateCardTransforms();
-
-  // Handle window resize
-  window.addEventListener('resize', updateCardTransforms);
+    // Also support hover interaction
+    frame.addEventListener('mouseenter', () => {
+      switchAboutTab(tabId);
+    });
+  });
 }
 
 // 16. HERO IMAGE SCROLL TRIGGER AUTOMATION
@@ -1259,12 +1191,11 @@ function initHeroScrollAnimation() {
   if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     gsap.registerPlugin(ScrollTrigger);
 
-    // Smoothly scale down, rotate, and fade the main cake wrapper as the user scrolls
-    gsap.to('.hero-image-floating-wrapper', {
-      y: 120,
-      scale: 0.78,
-      opacity: 0.15,
-      rotate: 12,
+    // Smoothly scale down, slide, and fade the main canvas frame as the user scrolls
+    gsap.to('.hero-canvas-frame', {
+      y: 80,
+      scale: 0.95,
+      opacity: 0.8,
       scrollTrigger: {
         trigger: '#home',
         start: 'top top',
@@ -1273,11 +1204,10 @@ function initHeroScrollAnimation() {
       }
     });
 
-    // Expand, spin faster, and fade out the orbit ring on scroll
-    gsap.to('.hero-image-ring', {
-      scale: 1.25,
-      rotate: 240,
-      opacity: 0,
+    // Also slide the Tasting Notes placard slightly faster
+    gsap.to('.tasting-placard', {
+      y: 40,
+      x: 10,
       scrollTrigger: {
         trigger: '#home',
         start: 'top top',
@@ -1286,6 +1216,95 @@ function initHeroScrollAnimation() {
       }
     });
   }
+}
+
+// 16b. BOUTIQUE MOOD SELECTOR (SPECIAL FEATURE)
+function initBoutiqueMoodSelector() {
+  const moodSelector = document.querySelector('.hero-mood-selector');
+  if (!moodSelector) return;
+
+  const tabs = moodSelector.querySelectorAll('.mood-tab');
+  const titleElem = document.getElementById('hero-title');
+  const descElem = document.getElementById('hero-desc');
+  const imgMain = document.getElementById('hero-img-main');
+  const compElem = document.getElementById('tasting-composition');
+  const profileElem = document.getElementById('tasting-profile');
+  const specsElem = document.getElementById('tasting-specs');
+
+  if (!titleElem || !descElem || !imgMain || !compElem || !profileElem || !specsElem) return;
+
+  const HERO_MOODS = {
+    classic: {
+      title: 'Every Celebration Begins With <span class="title-highlight">Heaven</span>',
+      desc: 'Artisanal cakes meticulously designed and baked daily using premium natural ingredients. Elevating your special occasions with absolute culinary elegance.',
+      mainImg: 'images/hero_cake.jpg',
+      composition: 'Madagascar Vanilla Bean & Fresh Cream',
+      profile: 'Delicate, Silky, Creamy',
+      specs: '1.5 kg • Serves 12-15 Pax'
+    },
+    decadence: {
+      title: 'Indulge in Curated <span class="title-highlight">Decadence</span>',
+      desc: 'Rich, intense dark chocolate layers paired with premium cocoa infusions. Crafted meticulously for the ultimate chocolate connoisseur.',
+      mainImg: 'images/hero_chocolate.jpg',
+      composition: 'Belgian Dark Chocolate Ganache & Truffle',
+      profile: 'Rich, Bittersweet, Fudgy',
+      specs: '1.0 kg • Serves 8-10 Pax'
+    },
+    harvest: {
+      title: 'Savor the Crisp <span class="title-highlight">Harvest</span>',
+      desc: 'Light, airy sponge layered with fresh seasonal fruits and delicate creams. A refreshing, natural touch of sweetness for elegant celebrations.',
+      mainImg: 'images/mango_cake.png',
+      composition: 'Fresh Alphonso Mango & Velvet Sponge',
+      profile: 'Fruity, Refreshing, Zesty',
+      specs: '1.2 kg • Serves 10-12 Pax'
+    }
+  };
+
+  let isTransitioning = false;
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      if (isTransitioning || tab.classList.contains('active')) return;
+
+      const targetMood = tab.getAttribute('data-mood');
+      const moodData = HERO_MOODS[targetMood];
+      if (!moodData) return;
+
+      isTransitioning = true;
+
+      // Update active tab class immediately
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      // Add fade-out classes
+      titleElem.classList.add('hero-fade-out');
+      descElem.classList.add('hero-fade-out');
+      imgMain.classList.add('hero-img-fade-out');
+      compElem.classList.add('hero-fade-out');
+      profileElem.classList.add('hero-fade-out');
+      specsElem.classList.add('hero-fade-out');
+
+      // Wait for fade-out transition, then swap content and fade back in
+      setTimeout(() => {
+        titleElem.innerHTML = moodData.title;
+        descElem.textContent = moodData.desc;
+        imgMain.src = moodData.mainImg;
+        compElem.textContent = moodData.composition;
+        profileElem.textContent = moodData.profile;
+        specsElem.textContent = moodData.specs;
+
+        // Remove fade-out classes after updating content
+        titleElem.classList.remove('hero-fade-out');
+        descElem.classList.remove('hero-fade-out');
+        imgMain.classList.remove('hero-img-fade-out');
+        compElem.classList.remove('hero-fade-out');
+        profileElem.classList.remove('hero-fade-out');
+        specsElem.classList.remove('hero-fade-out');
+
+        isTransitioning = false;
+      }, 400); // Matches the 0.4s CSS transition time
+    });
+  });
 }
 
 // 17. INTERACTIVE CAKE CUSTOMIZER & PRICE CALCULATIONS
@@ -2497,6 +2516,13 @@ function generateBotResponse(userMsg) {
            `5. Click <strong>Submit Order on WhatsApp</strong>. This automatically builds your order ticket and launches WhatsApp chat directly with our chef to finalize details!`;
   }
 
+  if (text.includes('where') || text.includes('location') || text.includes('address') || text.includes('find') || text.includes('map') || text.includes('shop') || text.includes('store') || text.includes('directions')) {
+    return `We are located in Kumbla (Kumble), Kerala! 📍<br><br>` +
+           `• <strong>Boutique Address</strong>: Muliyadka Complex, Police Station Road, next to Kumbla Co-operative Bank, Kumbla (Kumble), Kerala - 671321.<br>` +
+           `• <strong>Google Maps Plus Code</strong>: HWVV+RH Kumbla (Kumble), Kerala.<br><br>` +
+           `You can click the <strong>Get Directions</strong> button in our address section or view our location on the map at the bottom of the page!`;
+  }
+
   if (text.includes('deliver') || text.includes('delivery') || text.includes('home delivery') || text.includes('charge')) {
     return `Yes, we offer home delivery! 🚗<br><br>` +
            `• <strong>Free Delivery</strong>: Within Kumbla town limits.<br>` +
@@ -2573,3 +2599,4 @@ function handleChatSubmit(event) {
 window.toggleChatbot = toggleChatbot;
 window.handleQuickQuestion = handleQuickQuestion;
 window.handleChatSubmit = handleChatSubmit;
+
