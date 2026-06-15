@@ -77,6 +77,16 @@
 
   <!-- Hero Section -->
   <section class="hero" id="home">
+    <!-- Full-screen Background Video & Fallback Image -->
+    <div class="hero-video-wrapper">
+      <video class="hero-video-bg" autoplay loop muted playsinline id="hero-video-player" poster="images/hero_cake.jpg">
+        <source id="hero-video-src" src="video/make_a_video_for_this_to_put_i.mp4" type="video/mp4">
+        <source src="https://videos.pexels.com/video-files/3125396/3125396-sd_540_960_25fps.mp4" type="video/mp4">
+      </video>
+      <img src="images/hero_cake.jpg" alt="Exquisite Premium Celebration Cake" class="hero-img-bg" id="hero-img-main">
+      <div class="hero-video-overlay"></div>
+    </div>
+
     <div class="container">
       <div class="hero-grid">
         <div class="hero-content reveal reveal-left">
@@ -108,45 +118,33 @@
         </div>
 
         <div class="hero-canvas reveal reveal-right delay-2">
-          <!-- Main Canvas Frame -->
-          <div class="hero-canvas-frame">
-            <div class="hero-canvas-inner">
-              <video class="hero-canvas-video" autoplay loop muted playsinline id="hero-video-player" poster="images/hero_cake.jpg">
-                <source id="hero-video-src" src="video/make_a_video_for_this_to_put_i.mp4" type="video/mp4">
-                <source src="https://videos.pexels.com/video-files/3125396/3125396-sd_540_960_25fps.mp4" type="video/mp4">
-              </video>
-              <img src="images/hero_cake.jpg" alt="Exquisite Premium Celebration Cake" class="hero-canvas-img" id="hero-img-main">
-            </div>
-          </div>
-            
-            <!-- Floating Tasting Notes Placard -->
-            <div class="tasting-placard">
-              <div class="placard-header">01 / FEATURED COMPOSITION</div>
-              <div class="placard-title" id="tasting-composition">Madagascar Vanilla Bean & Fresh Cream</div>
-              <div class="placard-divider"></div>
-              <div class="placard-details">
-                <div class="placard-item">
-                  <span class="placard-label">PROFILE:</span>
-                  <span class="placard-val" id="tasting-profile">Delicate, Silky, Creamy</span>
-                </div>
-                <div class="placard-item">
-                  <span class="placard-label">SPECS:</span>
-                  <span class="placard-val" id="tasting-specs">1.5 kg • Serves 12-15 Pax</span>
-                </div>
+          <!-- Floating Tasting Notes Placard -->
+          <div class="tasting-placard">
+            <div class="placard-header">01 / FEATURED COMPOSITION</div>
+            <div class="placard-title" id="tasting-composition">Madagascar Vanilla Bean & Fresh Cream</div>
+            <div class="placard-divider"></div>
+            <div class="placard-details">
+              <div class="placard-item">
+                <span class="placard-label">PROFILE:</span>
+                <span class="placard-val" id="tasting-profile">Delicate, Silky, Creamy</span>
+              </div>
+              <div class="placard-item">
+                <span class="placard-label">SPECS:</span>
+                <span class="placard-val" id="tasting-specs">1.5 kg • Serves 12-15 Pax</span>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Artisan Rotating Seal (Floating Accent) -->
-          <div class="hero-artisan-seal" aria-hidden="true">
-            <svg viewBox="0 0 100 100">
-              <path id="sealCirclePath" d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" fill="none" />
-              <text>
-                <textPath href="#sealCirclePath">THE HEAVEN CAKES • HANDCRAFTED DAILY • </textPath>
-              </text>
-            </svg>
-            <div class="seal-center">✦</div>
-          </div>
+        <!-- Artisan Rotating Seal (Floating Accent) -->
+        <div class="hero-artisan-seal" aria-hidden="true">
+          <svg viewBox="0 0 100 100">
+            <path id="sealCirclePath" d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" fill="none" />
+            <text>
+              <textPath href="#sealCirclePath">THE HEAVEN CAKES • HANDCRAFTED DAILY • </textPath>
+            </text>
+          </svg>
+          <div class="seal-center">✦</div>
         </div>
       </div>
     </div>

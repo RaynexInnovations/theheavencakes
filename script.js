@@ -1271,6 +1271,8 @@ function initBoutiqueMoodSelector() {
   function loadAndPlayVideo(localUrl, backupUrl) {
     if (!videoPlayer) return;
     
+    videoPlayer.classList.remove('video-playing');
+    
     // Set to local source first
     videoPlayer.src = localUrl;
     videoPlayer.load();
@@ -1290,6 +1292,7 @@ function initBoutiqueMoodSelector() {
         }).catch(backupErr => {
           console.error("Backup video also failed to play:", backupErr);
           videoPlayer.classList.add('video-hidden');
+          videoPlayer.classList.remove('video-playing');
         });
       });
     }
@@ -1299,11 +1302,13 @@ function initBoutiqueMoodSelector() {
   if (videoPlayer) {
     videoPlayer.addEventListener('playing', () => {
       videoPlayer.classList.remove('video-hidden');
+      videoPlayer.classList.add('video-playing');
     });
     
     videoPlayer.addEventListener('error', () => {
       console.warn("Hero video encountered an error, falling back to static image.");
       videoPlayer.classList.add('video-hidden');
+      videoPlayer.classList.remove('video-playing');
     });
 
     // In some mobile browsers, autoplay is blocked and no error event fires, but the video remains paused.
@@ -1312,9 +1317,11 @@ function initBoutiqueMoodSelector() {
       if (videoPlayer.paused) {
         videoPlayer.play().then(() => {
           videoPlayer.classList.remove('video-hidden');
+          videoPlayer.classList.add('video-playing');
         }).catch(() => {
           console.warn("Autoplay was blocked or failed, showing static image.");
           videoPlayer.classList.add('video-hidden');
+          videoPlayer.classList.remove('video-playing');
         });
       }
     }, 1500);
