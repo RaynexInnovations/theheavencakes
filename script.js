@@ -1191,30 +1191,20 @@ function initHeroScrollAnimation() {
   if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     gsap.registerPlugin(ScrollTrigger);
 
-    // Smoothly scale down, slide, and fade the main canvas frame as the user scrolls
-    gsap.to('.hero-canvas-frame', {
-      y: 80,
-      scale: 0.95,
-      opacity: 0.8,
-      scrollTrigger: {
-        trigger: '#home',
-        start: 'top top',
-        end: 'bottom top',
-        scrub: true
-      }
-    });
-
-    // Also slide the Tasting Notes placard slightly faster
-    gsap.to('.tasting-placard', {
-      y: 40,
-      x: 10,
-      scrollTrigger: {
-        trigger: '#home',
-        start: 'top top',
-        end: 'bottom top',
-        scrub: true
-      }
-    });
+    // Smoothly scale down, slide, and fade the main centered hero content as the user scrolls
+    if (document.querySelector('.hero-content')) {
+      gsap.to('.hero-content', {
+        y: 60,
+        scale: 0.98,
+        opacity: 0.6,
+        scrollTrigger: {
+          trigger: '#home',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true
+        }
+      });
+    }
   }
 }
 
@@ -1232,7 +1222,7 @@ function initBoutiqueMoodSelector() {
   const profileElem = document.getElementById('tasting-profile');
   const specsElem = document.getElementById('tasting-specs');
 
-  if (!titleElem || !descElem || !imgMain || !compElem || !profileElem || !specsElem) return;
+  if (!titleElem || !descElem || !imgMain) return;
 
   const HERO_MOODS = {
     classic: {
@@ -1350,18 +1340,18 @@ function initBoutiqueMoodSelector() {
       if (videoPlayer) {
         videoPlayer.classList.add('hero-img-fade-out');
       }
-      compElem.classList.add('hero-fade-out');
-      profileElem.classList.add('hero-fade-out');
-      specsElem.classList.add('hero-fade-out');
+      if (compElem) compElem.classList.add('hero-fade-out');
+      if (profileElem) profileElem.classList.add('hero-fade-out');
+      if (specsElem) specsElem.classList.add('hero-fade-out');
 
       // Wait for fade-out transition, then swap content and fade back in
       setTimeout(() => {
         titleElem.innerHTML = moodData.title;
         descElem.textContent = moodData.desc;
         imgMain.src = moodData.mainImg;
-        compElem.textContent = moodData.composition;
-        profileElem.textContent = moodData.profile;
-        specsElem.textContent = moodData.specs;
+        if (compElem) compElem.textContent = moodData.composition;
+        if (profileElem) profileElem.textContent = moodData.profile;
+        if (specsElem) specsElem.textContent = moodData.specs;
 
         if (videoPlayer) {
           videoPlayer.poster = moodData.mainImg;
@@ -1375,9 +1365,9 @@ function initBoutiqueMoodSelector() {
         if (videoPlayer) {
           videoPlayer.classList.remove('hero-img-fade-out');
         }
-        compElem.classList.remove('hero-fade-out');
-        profileElem.classList.remove('hero-fade-out');
-        specsElem.classList.remove('hero-fade-out');
+        if (compElem) compElem.classList.remove('hero-fade-out');
+        if (profileElem) profileElem.classList.remove('hero-fade-out');
+        if (specsElem) specsElem.classList.remove('hero-fade-out');
 
         isTransitioning = false;
       }, 400); // Matches the 0.4s CSS transition time
