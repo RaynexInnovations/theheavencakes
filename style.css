@@ -578,8 +578,8 @@ header.sticky .nav-logo-img {
   font-weight: 600;
   letter-spacing: 2.5px;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.65);
-  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
 }
 
 .hero-title {
@@ -589,22 +589,23 @@ header.sticky .nav-logo-img {
   letter-spacing: -1.5px;
   line-height: 1.1;
   color: var(--white);
-  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.8), 0 2px 10px rgba(0, 0, 0, 0.9);
 }
 
 .hero-title .title-highlight {
   font-style: italic;
   font-weight: 500;
-  color: var(--gold);
+  color: #E8B94B; /* Warmer, brighter gold */
+  text-shadow: 0 2px 20px rgba(232, 185, 75, 0.2);
 }
 
 .hero-desc {
   font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.98); /* Near pure white for high contrast */
   margin-bottom: 40px;
   max-width: 520px;
   line-height: 1.7;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.8), 0 1px 5px rgba(0, 0, 0, 0.9);
 }
 
 .hero-cta {
@@ -633,9 +634,9 @@ header.sticky .nav-logo-img {
   font-weight: 500;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.85); /* Brighter coordinates */
   margin-top: 40px;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.8);
 }
 
 .hero-coordinates .coordinate-bullet {
