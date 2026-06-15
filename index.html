@@ -18,7 +18,7 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎂</text></svg>">
 
   <!-- Core Stylesheet -->
-  <link rel="stylesheet" href="style.css?v=3.0">
+  <link rel="stylesheet" href="style.css?v=3.1">
 </head>
 <body>
 
@@ -111,8 +111,13 @@
           <!-- Main Canvas Frame -->
           <div class="hero-canvas-frame">
             <div class="hero-canvas-inner">
+              <video class="hero-canvas-video" autoplay loop muted playsinline id="hero-video-player" poster="images/hero_cake.jpg">
+                <source id="hero-video-src" src="images/hero_video_classic.mp4" type="video/mp4">
+                <source src="https://videos.pexels.com/video-files/3125396/3125396-sd_540_960_25fps.mp4" type="video/mp4">
+              </video>
               <img src="images/hero_cake.jpg" alt="Exquisite Premium Celebration Cake" class="hero-canvas-img" id="hero-img-main">
             </div>
+          </div>
             
             <!-- Floating Tasting Notes Placard -->
             <div class="tasting-placard">
@@ -1464,6 +1469,6 @@
   <!-- Supabase Config -->
   <script src="supabase-config.js"></script>
   <!-- Core Script File -->
-  <script src="script.js?v=3.0"></script>
+  <script src="script.js?v=3.1"></script>
 </body>
 </html>

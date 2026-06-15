@@ -1227,6 +1227,7 @@ function initBoutiqueMoodSelector() {
   const titleElem = document.getElementById('hero-title');
   const descElem = document.getElementById('hero-desc');
   const imgMain = document.getElementById('hero-img-main');
+  const videoPlayer = document.getElementById('hero-video-player');
   const compElem = document.getElementById('tasting-composition');
   const profileElem = document.getElementById('tasting-profile');
   const specsElem = document.getElementById('tasting-specs');
@@ -1238,6 +1239,8 @@ function initBoutiqueMoodSelector() {
       title: 'Every Celebration Begins With <span class="title-highlight">Heaven</span>',
       desc: 'Artisanal cakes meticulously designed and baked daily using premium natural ingredients. Elevating your special occasions with absolute culinary elegance.',
       mainImg: 'images/hero_cake.jpg',
+      videoLocal: 'images/hero_video_classic.mp4',
+      videoBackup: 'https://videos.pexels.com/video-files/3125396/3125396-sd_540_960_25fps.mp4',
       composition: 'Madagascar Vanilla Bean & Fresh Cream',
       profile: 'Delicate, Silky, Creamy',
       specs: '1.5 kg • Serves 12-15 Pax'
@@ -1246,6 +1249,8 @@ function initBoutiqueMoodSelector() {
       title: 'Indulge in Curated <span class="title-highlight">Decadence</span>',
       desc: 'Rich, intense dark chocolate layers paired with premium cocoa infusions. Crafted meticulously for the ultimate chocolate connoisseur.',
       mainImg: 'images/hero_chocolate.jpg',
+      videoLocal: 'images/hero_video_decadence.mp4',
+      videoBackup: 'https://videos.pexels.com/video-files/856264/856264-sd_540_960_30fps.mp4',
       composition: 'Belgian Dark Chocolate Ganache & Truffle',
       profile: 'Rich, Bittersweet, Fudgy',
       specs: '1.0 kg • Serves 8-10 Pax'
@@ -1254,11 +1259,66 @@ function initBoutiqueMoodSelector() {
       title: 'Savor the Crisp <span class="title-highlight">Harvest</span>',
       desc: 'Light, airy sponge layered with fresh seasonal fruits and delicate creams. A refreshing, natural touch of sweetness for elegant celebrations.',
       mainImg: 'images/mango_cake.png',
+      videoLocal: 'images/hero_video_harvest.mp4',
+      videoBackup: 'https://videos.pexels.com/video-files/4255556/4255556-sd_540_960_25fps.mp4',
       composition: 'Fresh Alphonso Mango & Velvet Sponge',
       profile: 'Fruity, Refreshing, Zesty',
       specs: '1.2 kg • Serves 10-12 Pax'
     }
   };
+
+  // Helper to safely play video with fallbacks
+  function loadAndPlayVideo(localUrl, backupUrl) {
+    if (!videoPlayer) return;
+    
+    // Set to local source first
+    videoPlayer.src = localUrl;
+    videoPlayer.load();
+    
+    const playPromise = videoPlayer.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        // Successfully playing local video
+        videoPlayer.classList.remove('video-hidden');
+      }).catch(err => {
+        console.warn(`Local video (${localUrl}) failed to play, trying backup...`, err);
+        // Try backup URL
+        videoPlayer.src = backupUrl;
+        videoPlayer.load();
+        videoPlayer.play().then(() => {
+          videoPlayer.classList.remove('video-hidden');
+        }).catch(backupErr => {
+          console.error("Backup video also failed to play:", backupErr);
+          videoPlayer.classList.add('video-hidden');
+        });
+      });
+    }
+  }
+
+  // Setup initial load tracking for the video player
+  if (videoPlayer) {
+    videoPlayer.addEventListener('playing', () => {
+      videoPlayer.classList.remove('video-hidden');
+    });
+    
+    videoPlayer.addEventListener('error', () => {
+      console.warn("Hero video encountered an error, falling back to static image.");
+      videoPlayer.classList.add('video-hidden');
+    });
+
+    // In some mobile browsers, autoplay is blocked and no error event fires, but the video remains paused.
+    // We check after a short delay if it's paused.
+    setTimeout(() => {
+      if (videoPlayer.paused) {
+        videoPlayer.play().then(() => {
+          videoPlayer.classList.remove('video-hidden');
+        }).catch(() => {
+          console.warn("Autoplay was blocked or failed, showing static image.");
+          videoPlayer.classList.add('video-hidden');
+        });
+      }
+    }, 1500);
+  }
 
   let isTransitioning = false;
 
@@ -1280,6 +1340,9 @@ function initBoutiqueMoodSelector() {
       titleElem.classList.add('hero-fade-out');
       descElem.classList.add('hero-fade-out');
       imgMain.classList.add('hero-img-fade-out');
+      if (videoPlayer) {
+        videoPlayer.classList.add('hero-img-fade-out');
+      }
       compElem.classList.add('hero-fade-out');
       profileElem.classList.add('hero-fade-out');
       specsElem.classList.add('hero-fade-out');
@@ -1293,10 +1356,18 @@ function initBoutiqueMoodSelector() {
         profileElem.textContent = moodData.profile;
         specsElem.textContent = moodData.specs;
 
+        if (videoPlayer) {
+          videoPlayer.poster = moodData.mainImg;
+          loadAndPlayVideo(moodData.videoLocal, moodData.videoBackup);
+        }
+
         // Remove fade-out classes after updating content
         titleElem.classList.remove('hero-fade-out');
         descElem.classList.remove('hero-fade-out');
         imgMain.classList.remove('hero-img-fade-out');
+        if (videoPlayer) {
+          videoPlayer.classList.remove('hero-img-fade-out');
+        }
         compElem.classList.remove('hero-fade-out');
         profileElem.classList.remove('hero-fade-out');
         specsElem.classList.remove('hero-fade-out');

@@ -609,6 +609,7 @@ header.sticky .nav-logo-img {
 #hero-title,
 #hero-desc,
 #hero-img-main,
+#hero-video-player,
 #tasting-composition,
 #tasting-profile,
 #tasting-specs {
@@ -650,10 +651,31 @@ header.sticky .nav-logo-img {
   border-radius: 2px;
 }
 
-.hero-canvas-img {
+.hero-canvas-video {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  z-index: 2;
+  border-radius: 2px;
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-canvas-video.video-hidden {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+.hero-canvas-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
   transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
 }
 
@@ -736,7 +758,8 @@ header.sticky .nav-logo-img {
   border-color: var(--gold);
 }
 
-.hero-canvas:hover .hero-canvas-img {
+.hero-canvas:hover .hero-canvas-img,
+.hero-canvas:hover .hero-canvas-video {
   transform: scale(1.05);
 }
 
