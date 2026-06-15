@@ -1290,10 +1290,17 @@ function initBoutiqueMoodSelector() {
 
   // Setup initial load tracking for the video player
   if (videoPlayer) {
-    videoPlayer.addEventListener('playing', () => {
+    const handlePlaying = () => {
       videoPlayer.classList.remove('video-hidden');
       videoPlayer.classList.add('video-playing');
-    });
+    };
+
+    videoPlayer.addEventListener('playing', handlePlaying);
+    
+    // If the video is already playing (e.g. autoplayed before script execution), show it immediately
+    if (!videoPlayer.paused) {
+      handlePlaying();
+    }
     
     videoPlayer.addEventListener('error', () => {
       console.warn("Hero video encountered an error, falling back to static image.");
@@ -1306,8 +1313,7 @@ function initBoutiqueMoodSelector() {
     setTimeout(() => {
       if (videoPlayer.paused) {
         videoPlayer.play().then(() => {
-          videoPlayer.classList.remove('video-hidden');
-          videoPlayer.classList.add('video-playing');
+          handlePlaying();
         }).catch(() => {
           console.warn("Autoplay was blocked or failed, showing static image.");
           videoPlayer.classList.add('video-hidden');
